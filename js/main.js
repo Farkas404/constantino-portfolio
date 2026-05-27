@@ -1,142 +1,146 @@
 document.addEventListener("DOMContentLoaded", function () {
-  var galleries = {
-    "Interstate Magazine": [
-      "assets/images/p01.jpg",
-      "assets/images/p02.jpg",
-      "assets/images/p04.jpg"
-    ],
-    "Locust Jones": [
-      "assets/images/p08.jpg",
-      "assets/images/p09.jpg",
-      "assets/images/p10.jpg"
-    ],
-    "Eva Mayr-Stihl Stiftung": [
-      "assets/images/p11.jpg",
-      "assets/images/p12.jpg"
-    ],
-    "Organ Donation": [
-      "assets/images/p18.jpg",
-      "assets/images/p19.jpg",
-      "assets/images/p20.jpg"
-    ],
-    "Bucalu Store Interior": [
-      "assets/images/b01.jpg",
-      "assets/images/b02.jpg",
-      "assets/images/b03.jpg",
-      "assets/images/b04.jpg"
-    ],
-    "KFC Summer Bucket": [
-      "assets/images/p39.jpg",
-    ]
-  };
-
   var lightbox = document.querySelector(".lightbox");
+  var lightboxPanel = document.querySelector(".lightbox-panel");
   var lightboxImg = document.querySelector(".lightbox-image-wrap img");
   var lightboxTitle = document.querySelector(".lightbox-title");
   var lightboxMeta = document.querySelector(".lightbox-meta");
+  var lightboxCounter = document.querySelector(".lightbox-counter");
+  var lightboxThumbs = document.querySelector(".lightbox-thumbs");
   var closeButton = document.querySelector(".lightbox-close");
+  var prevButton = document.querySelector(".gallery-prev");
+  var nextButton = document.querySelector(".gallery-next");
   var backTopButton = document.querySelector(".back-top");
-  var openButtons = document.querySelectorAll(".js-open-image");
+  var openButtons = document.querySelectorAll(".js-open-gallery");
 
-  var lightboxPanel = document.querySelector(".lightbox-panel");
-  var caption = document.querySelector(".lightbox-caption");
+  var currentGallery = [];
+  var currentIndex = 0;
+  var currentTitle = "";
+  var currentMeta = "";
+  var touchStartX = 0;
+  var touchStartY = 0;
 
-  var controls = document.createElement("div");
-  controls.className = "gallery-controls";
-  controls.innerHTML = [
-    '<button class="gallery-prev" type="button" aria-label="Previous image">‹</button>',
-    '<span class="gallery-counter">1 / 1</span>',
-    '<button class="gallery-next" type="button" aria-label="Next image">›</button>'
-  ].join("");
+  function getGallery(button) {
+    var gallery = button.getAttribute("data-gallery") || "";
 
-  var thumbnails = document.createElement("div");
-  thumbnails.className = "gallery-thumbnails";
+    return gallery
+      .split(",")
+      .map(function (item) {
+        return item.trim();
+      })
+      .filter(Boolean);
+  }
 
-  lightboxPanel.insertBefore(controls, caption);
-  lightboxPanel.appendChild(thumbnails);
+  function renderThumbs() {
+    lightboxThumbs.innerHTML = "";
 
-  var prevButton = controls.querySelector(".gallery-prev");
-  var nextButton = controls.querySelector(".gallery-next");
-  var counter = controls.querySelector(".gallery-counter");
+    currentGallery.forEach(function (src, index) {
+      var thumbButton = document.createElement("button");
+      thumbButton.type = "button";
+      thumbButton.className = "lightbox-thumb";
 
-  var state = {
-    images: [],
-    index: 0,
-    title: "",
-    meta: ""
-  };
-
-  function renderGallery() {
-    var image = state.images[state.index];
-
-    lightboxImg.src = image;
-    lightboxImg.alt = state.title + " — image " + (state.index + 1);
-
-    lightboxTitle.textContent = state.title;
-    lightboxMeta.textContent = state.meta;
-    counter.textContent = (state.index + 1) + " / " + state.images.length;
-
-    prevButton.disabled = state.images.length <= 1;
-    nextButton.disabled = state.images.length <= 1;
-
-    thumbnails.innerHTML = "";
-
-    state.images.forEach(function (src, index) {
-      var thumb = document.createElement("button");
-      thumb.type = "button";
-      thumb.className = "gallery-thumb" + (index === state.index ? " is-active" : "");
-      thumb.setAttribute("aria-label", "Open image " + (index + 1));
+      if (index === currentIndex) {
+        thumbButton.classList.add("is-active");
+      }
 
       var thumbImg = document.createElement("img");
       thumbImg.src = src;
-      thumbImg.alt = "";
+      thumbImg.alt = currentTitle + " thumbnail " + (index + 1);
 
-      thumb.appendChild(thumbImg);
+      thumbButton.appendChild(thumbImg);
 
-      thumb.addEventListener("click", function () {
-        state.index = index;
-        renderGallery();
+      thumbButton.addEventListener("click", function () {
+        currentIndex = index;
+        renderGallery(true);
       });
 
-      thumbnails.appendChild(thumb);
+      lightboxThumbs.appendChild(thumbButton);
     });
   }
 
+  function renderGallery(shouldScrollTop) {
+    if (!currentGallery.length) {
+      return;
+    }
+
+    lightboxImg.src = currentGallery[currentIndex];
+    lightboxImg.alt = currentTitle + " — image " + (currentIndex + 1);
+
+    lightboxTitle.textContent = currentTitle;
+    lightboxMeta.textContent = currentMeta;
+    lightboxCounter.textContent =
+      "Image " + (currentIndex + 1) + " / " + currentGallery.length;
+
+    var hasMultipleImages = currentGallery.length > 1;
+
+    prevButton.disabled = !hasMultipleImages;
+    nextButton.disabled = !hasMultipleImages;
+
+    renderThumbs();
+
+    if (shouldScrollTop) {
+      lightbox.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+  }
+
   function openLightbox(button) {
-    var title = button.getAttribute("data-title") || "Project preview";
-    var meta = button.getAttribute("data-meta") || "";
-    var fallbackImage = button.getAttribute("data-full");
+    currentGallery = getGallery(button);
+    currentIndex = 0;
+    currentTitle = button.getAttribute("data-title") || "Project preview";
+    currentMeta = button.getAttribute("data-meta") || "";
 
-    state.images = galleries[title] || [fallbackImage];
-    state.index = 0;
-    state.title = title;
-    state.meta = meta;
+    if (!currentGallery.length) {
+      return;
+    }
 
-    renderGallery();
+    renderGallery(false);
 
     lightbox.classList.add("is-open");
     lightbox.setAttribute("aria-hidden", "false");
     document.body.classList.add("no-scroll");
+
+    lightbox.scrollTop = 0;
   }
 
   function closeLightbox() {
     lightbox.classList.remove("is-open");
     lightbox.setAttribute("aria-hidden", "true");
+
     lightboxImg.src = "";
-    thumbnails.innerHTML = "";
+    lightboxTitle.textContent = "";
+    lightboxMeta.textContent = "";
+    lightboxCounter.textContent = "";
+    lightboxThumbs.innerHTML = "";
+
+    currentGallery = [];
+    currentIndex = 0;
+    currentTitle = "";
+    currentMeta = "";
+
     document.body.classList.remove("no-scroll");
   }
 
-  function showNext() {
-    if (state.images.length <= 1) return;
-    state.index = (state.index + 1) % state.images.length;
-    renderGallery();
+  function showPrevious() {
+    if (currentGallery.length <= 1) {
+      return;
+    }
+
+    currentIndex =
+      (currentIndex - 1 + currentGallery.length) % currentGallery.length;
+
+    renderGallery(true);
   }
 
-  function showPrevious() {
-    if (state.images.length <= 1) return;
-    state.index = (state.index - 1 + state.images.length) % state.images.length;
-    renderGallery();
+  function showNext() {
+    if (currentGallery.length <= 1) {
+      return;
+    }
+
+    currentIndex = (currentIndex + 1) % currentGallery.length;
+
+    renderGallery(true);
   }
 
   openButtons.forEach(function (button) {
@@ -146,8 +150,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   closeButton.addEventListener("click", closeLightbox);
-  nextButton.addEventListener("click", showNext);
   prevButton.addEventListener("click", showPrevious);
+  nextButton.addEventListener("click", showNext);
 
   lightbox.addEventListener("click", function (event) {
     if (event.target === lightbox) {
@@ -155,38 +159,46 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  lightboxPanel.addEventListener("click", function (event) {
+    event.stopPropagation();
+  });
+
   document.addEventListener("keydown", function (event) {
-    if (!lightbox.classList.contains("is-open")) return;
+    if (!lightbox.classList.contains("is-open")) {
+      return;
+    }
 
     if (event.key === "Escape") {
       closeLightbox();
     }
 
-    if (event.key === "ArrowRight") {
-      showNext();
-    }
-
     if (event.key === "ArrowLeft") {
       showPrevious();
     }
-  });
 
-  var touchStartX = 0;
-  var touchEndX = 0;
+    if (event.key === "ArrowRight") {
+      showNext();
+    }
+  });
 
   lightbox.addEventListener("touchstart", function (event) {
     touchStartX = event.changedTouches[0].screenX;
+    touchStartY = event.changedTouches[0].screenY;
   }, { passive: true });
 
   lightbox.addEventListener("touchend", function (event) {
-    touchEndX = event.changedTouches[0].screenX;
+    var touchEndX = event.changedTouches[0].screenX;
+    var touchEndY = event.changedTouches[0].screenY;
 
-    if (touchStartX - touchEndX > 50) {
-      showNext();
-    }
+    var diffX = touchStartX - touchEndX;
+    var diffY = touchStartY - touchEndY;
 
-    if (touchEndX - touchStartX > 50) {
-      showPrevious();
+    if (Math.abs(diffX) > 60 && Math.abs(diffY) < 70) {
+      if (diffX > 0) {
+        showNext();
+      } else {
+        showPrevious();
+      }
     }
   }, { passive: true });
 
