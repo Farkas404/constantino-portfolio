@@ -3,154 +3,371 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Constantino — Visual & Tech Portfolio</title>
-  <meta name="description" content="Visual design, media, frontend and technology portfolio by Constantino Carneiro." />
+
+  <title>Constantino — Visual Portfolio</title>
+
+  <meta
+    name="description"
+    content="Curated visual design and media portfolio by Constantino Carneiro."
+  />
+
   <link rel="stylesheet" href="css/style.css" />
 </head>
 
 <body>
-  <header class="site-header">
-    <a href="#" class="logo">CONSTANTINO</a>
-    <nav>
-      <a href="#work">Work</a>
-      <a href="#tech">Tech</a>
+
+  <header class="topbar" id="top">
+
+    <a class="mark" href="#top">
+      <img src="assets/images/farkas-logo.svg" alt="Logo">
+    </a>
+
+    <nav class="nav">
+      <a href="#top">Home</a>
+      <a href="#work">Selected Work</a>
       <a href="#about">About</a>
-      <a href="#contact">Contact</a>
+
+      <a
+        class="nav-pill"
+        href="https://www.szilardfarkas.uk"
+        target="_blank"
+      >
+        Online CV
+      </a>
     </nav>
+
   </header>
 
   <main>
-    <section class="hero">
-      <div class="hero-text">
-        <p class="eyebrow">Visual Design · Media · Frontend · Automation</p>
-        <h1>Selected work for screens, brands and digital products.</h1>
-        <p class="lead">
-          A curated portfolio combining editorial design, campaign concepts,
-          retail/interior visualization and a growing technical profile in web development.
+
+    <section class="hero shell">
+
+      <p class="kicker">
+        Constantino Carneiro Fernández
+      </p>
+
+      <h1>
+        Visual design,
+        editorial systems
+        and media concepts.
+      </h1>
+
+      <p class="hero-copy">
+        A curated screen-first portfolio with selected work in
+        editorial design, campaign concepts, retail/interior
+        visualization and visual culture.
+      </p>
+
+      <div class="hero-actions">
+
+        <a class="button dark" href="#work">
+          View projects
+        </a>
+
+        <a
+          class="button light"
+          href="https://www.szilardfarkas.uk"
+          target="_blank"
+        >
+          Online CV
+        </a>
+
+      </div>
+
+    </section>
+
+    <section class="statement shell">
+
+      <p>
+        Fewer projects, stronger presentation:
+        selected visual work organized as case-study
+        cards for recruiters, studios and media/frontend roles.
+      </p>
+
+    </section>
+
+    <section class="work-section" id="work">
+
+      <div class="section-head shell">
+
+        <p class="kicker">
+          Selected work
         </p>
-        <div class="actions">
-          <a class="btn primary" href="#work">View selected work</a>
-          <a class="btn" href="#tech">Tech direction</a>
-        </div>
+
+        <h2>
+          Projects with visual impact.
+        </h2>
+
       </div>
 
-      <div class="hero-image">
-        <img src="assets/images/p01.jpg" alt="Portfolio preview" />
+      <div class="project-list shell">
+
+        <article class="project-card wide">
+
+          <button
+            class="image-button"
+            type="button"
+            data-full="assets/images/p01.jpg"
+          >
+            <img
+              src="assets/images/p01.jpg"
+              alt="Interstate Magazine"
+            />
+          </button>
+
+          <div class="project-copy">
+
+            <p class="project-meta">
+              Editorial / Visual culture
+            </p>
+
+            <h3>
+              Interstate Magazine
+            </h3>
+
+            <p>
+              Magazine concept focused on skateboarding,
+              photography, typography and visual culture.
+            </p>
+
+            <div class="tags">
+              <span>Editorial</span>
+              <span>Typography</span>
+              <span>Photography</span>
+            </div>
+
+          </div>
+
+        </article>
+
+        <article class="project-card">
+
+          <button
+            class="image-button"
+            type="button"
+            data-full="assets/images/p08.jpg"
+          >
+            <img
+              src="assets/images/p08.jpg"
+              alt="Locust Jones"
+            />
+          </button>
+
+          <div class="project-copy">
+
+            <p class="project-meta">
+              Book design
+            </p>
+
+            <h3>
+              Locust Jones
+            </h3>
+
+            <p>
+              Accordion-style editorial concept for panoramic
+              artwork and long-format visual storytelling.
+            </p>
+
+          </div>
+
+        </article>
+
+        <article class="project-card">
+
+          <button
+            class="image-button"
+            type="button"
+            data-full="assets/images/p11.jpg"
+          >
+            <img
+              src="assets/images/p11.jpg"
+              alt="Eva Mayr-Stihl Stiftung"
+            />
+          </button>
+
+          <div class="project-copy">
+
+            <p class="project-meta">
+              Institutional editorial
+            </p>
+
+            <h3>
+              Eva Mayr-Stihl Stiftung
+            </h3>
+
+            <p>
+              Clean editorial design for a foundation context.
+            </p>
+
+          </div>
+
+        </article>
+
+        <article class="project-card">
+
+          <button
+            class="image-button"
+            type="button"
+            data-full="assets/images/p18.jpg"
+          >
+            <img
+              src="assets/images/p18.jpg"
+              alt="Organ Donation"
+            />
+          </button>
+
+          <div class="project-copy">
+
+            <p class="project-meta">
+              Campaign concept
+            </p>
+
+            <h3>
+              Organ Donation
+            </h3>
+
+            <p>
+              Audio-poster campaign connecting public awareness,
+              emotional storytelling and interactive media.
+            </p>
+
+          </div>
+
+        </article>
+
+        <article class="project-card">
+
+          <button
+            class="image-button"
+            type="button"
+            data-full="assets/images/b01.jpg"
+          >
+            <img
+              src="assets/images/b01.jpg"
+              alt="Bucalu Store Interior"
+            />
+          </button>
+
+          <div class="project-copy">
+
+            <p class="project-meta">
+              Retail / Interior
+            </p>
+
+            <h3>
+              Bucalu Store Interior
+            </h3>
+
+            <p>
+              Minimal flagship store concept for scalable retail implementation.
+            </p>
+
+          </div>
+
+        </article>
+
+        <article class="project-card wide">
+
+          <button
+            class="image-button"
+            type="button"
+            data-full="assets/images/p39.jpg"
+          >
+            <img
+              src="assets/images/p39.jpg"
+              alt="KFC Summer Bucket"
+            />
+          </button>
+
+          <div class="project-copy">
+
+            <p class="project-meta">
+              Packaging / Campaign winner
+            </p>
+
+            <h3>
+              KFC Summer Bucket
+            </h3>
+
+            <p>
+              Summer-themed packaging concept selected for
+              nationwide use in Germany.
+            </p>
+
+            <div class="tags">
+              <span>Packaging</span>
+              <span>Campaign</span>
+              <span>Winner</span>
+            </div>
+
+          </div>
+
+        </article>
+
       </div>
+
     </section>
 
-    <section class="intro">
-      <p>
-        This portfolio is intentionally curated: fewer projects, stronger presentation,
-        clearer storytelling and a more screen-first visual experience.
+    <section class="about shell" id="about">
+
+      <p class="kicker">
+        Profile
       </p>
-    </section>
 
-    <section id="work" class="section">
-      <div class="section-title">
-        <p class="eyebrow">Selected Work</p>
-        <h2>Visual & media projects</h2>
-      </div>
+      <h2>
+        Design background,
+        technical direction.
+      </h2>
 
-      <div class="projects">
-        <article class="project large">
-          <img src="assets/images/p01.jpg" alt="Interstate Magazine" />
-          <div>
-            <span>Editorial / Visual Culture</span>
-            <h3>Interstate Magazine</h3>
-            <p>Magazine concept focused on skateboarding, photography, typography and visual culture.</p>
-          </div>
-        </article>
-
-        <article class="project">
-          <img src="assets/images/p08.jpg" alt="Locust Jones book design" />
-          <div>
-            <span>Book Design</span>
-            <h3>Locust Jones</h3>
-            <p>Accordion-style editorial concept for panoramic artwork and long-format visual storytelling.</p>
-          </div>
-        </article>
-
-        <article class="project">
-          <img src="assets/images/p11.jpg" alt="Eva Mayr-Stihl Stiftung" />
-          <div>
-            <span>Institutional Editorial</span>
-            <h3>Eva Mayr-Stihl Stiftung</h3>
-            <p>Clean, structured and professional editorial design for a foundation context.</p>
-          </div>
-        </article>
-
-        <article class="project">
-          <img src="assets/images/p18.jpg" alt="Organ donation campaign" />
-          <div>
-            <span>Campaign Concept</span>
-            <h3>Organ Donation</h3>
-            <p>Audio-poster campaign connecting public awareness, emotion and interactive media.</p>
-          </div>
-        </article>
-
-        <article class="project">
-          <img src="assets/images/b01.jpg" alt="Bucalu Store Interior" />
-          <div>
-            <span>Retail / Interior</span>
-            <h3>Bucalu Store Interior</h3>
-            <p>High-end minimal flagship store concept for scalable retail implementation.</p>
-          </div>
-        </article>
-
-        <article class="project">
-          <img src="assets/images/p39.jpg" alt="KFC Summer Bucket" />
-          <div>
-            <span>Packaging / Campaign</span>
-            <h3>KFC Summer Bucket</h3>
-            <p>Summer-themed packaging concept selected as a nationwide campaign in Germany.</p>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section id="tech" class="section dark">
-      <div class="section-title">
-        <p class="eyebrow">Technical Direction</p>
-        <h2>From visual systems to technical systems</h2>
-      </div>
-
-      <div class="tech-grid">
-        <div>
-          <h3>Frontend & Web</h3>
-          <p>HTML, CSS, JavaScript, responsive layouts and practical interface implementation.</p>
-        </div>
-        <div>
-          <h3>Automation</h3>
-          <p>Workflow thinking, content automation, newsletter systems and structured process design.</p>
-        </div>
-        <div>
-          <h3>Cybersecurity Direction</h3>
-          <p>Long-term focus on Linux, networking, IT/OT cybersecurity and industrial systems.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="about" class="section about">
-      <div class="section-title">
-        <p class="eyebrow">About</p>
-        <h2>Designer-minded developer in progress.</h2>
-      </div>
       <p>
-        I combine a background in visual design with hands-on technical work.
-        My current direction is media, frontend, automation and technology-oriented roles.
+        I combine visual design experience with hands-on
+        technical work. My current direction connects media,
+        frontend, automation and technology-oriented roles.
       </p>
+
     </section>
+
   </main>
 
-  <footer id="contact">
-    <p>Constantino Carneiro</p>
-    <div>
-      <a href="https://github.com/Farkas404">GitHub</a>
-      <a href="https://www.linkedin.com/in/constantino-c-2957731a2">LinkedIn</a>
-    </div>
+  <button
+    class="back-top"
+    type="button"
+    aria-label="Back to top"
+  >
+    ↑
+  </button>
+
+  <div class="lightbox" aria-hidden="true">
+
+    <button
+      class="lightbox-close"
+      type="button"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+    <img src="" alt="Full project preview" />
+
+  </div>
+
+  <footer class="footer shell">
+
+    <span>
+      A curated visual portfolio
+    </span>
+
+    <span>
+      MMXXVI
+    </span>
+
+    <a href="#top">
+      Back to top
+    </a>
+
   </footer>
 
-  <script src="js/main.js?v=5"></script>
+  <script src="js/main.js?v=30"></script>
+
 </body>
 </html>
