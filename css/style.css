@@ -353,3 +353,58 @@ footer a:hover {
   color: white;
   font-size: 30px;
 }
+
+/* Portfolio V2 fixes */
+.dark {
+  background: linear-gradient(135deg, rgba(143,211,255,.12), rgba(185,255,102,.05)), #0d1117;
+  color: var(--text);
+}
+
+.dark .eyebrow {
+  color: #b9ff66;
+}
+
+.project img {
+  object-fit: contain;
+  background: #0c0c0c;
+  padding: 14px;
+}
+
+.project {
+  cursor: zoom-in;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0,0,0,.94);
+}
+
+.lightbox.active {
+  display: grid;
+}
+
+.lightbox img {
+  max-width: 96vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 18px;
+  background: #111;
+}
+
+.lightbox-close {
+  position: fixed;
+  top: 18px;
+  right: 22px;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  color: white;
+  font-size: 30px;
+}
