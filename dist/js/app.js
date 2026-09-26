@@ -11,7 +11,7 @@
   /* ---------- terminal typing ---------- */
   (function () {
     var box = $('#term'); if (!box) return;
-    var lines = UI.term, html = '', i = 0;
+    var lines = (matchMedia('(max-width:600px)').matches && UI.term_m) ? UI.term_m : UI.term, html = '', i = 0;
     function prompt() { return '<span class="p">constantino@farkas</span> <span class="c">~ %</span> '; }
     function render(extra) { box.innerHTML = html + prompt() + extra + '<span class="cur"></span>'; }
     function step() {
@@ -27,6 +27,79 @@
     }
     if (reduce) { lines.forEach(function (l) { html += l[0] === 'out' ? '<span class="o">' + l[1] + '</span>' : prompt() + '<span class="c">' + l[1] + '</span>\n'; }); render(''); }
     else setTimeout(step, 500);
+  })();
+
+
+  /* ---------- cyber intro: portrait scan / HUD / glitch (canvas, no video) ---------- */
+  (function () {
+    var box = $('#portrait'), img = $('#pimg'), cv = $('#pcv'); if (!box || !img || !cv) return;
+    var x = cv.getContext('2d'), dpr = Math.min(devicePixelRatio || 1, 2), W, H, ready = false, t0 = 0, raf = 0, idleT = 0, nextGlitch = 0;
+    var LM = { le: [.38, .41], re: [.60, .41], nose: [.49, .52], mouth: [.49, .59], chin: [.49, .70], lt: [.27, .36], rt: [.72, .36], crown: [.49, .10] };
+    var HUD = ['NEURAL LINK · ESTABLISHED', 'SYNC 98.4 %', 'ID  CCF · 1985 · BOCAS DEL TORO', 'LOC 49.01°N 12.10°E', 'STACK  HTML CSS JS · PHP SYMFONY · ANGULAR', 'MODE  UX / FULLSTACK'];
+    var src = document.createElement('canvas'), sx = src.getContext('2d'), dr = {};
+    function size() {
+      var r = box.getBoundingClientRect(); W = cv.width = Math.round(r.width * dpr); H = cv.height = Math.round(r.height * dpr);
+      var iw = img.naturalWidth, ih = img.naturalHeight, s = Math.max(W / iw, H / ih), dw = iw * s, dh = ih * s;
+      dr = { x: (W - dw) / 2, y: (H - dh) / 2, w: dw, h: dh };
+      src.width = W; src.height = H; sx.filter = 'grayscale(1) contrast(1.06)'; sx.drawImage(img, dr.x, dr.y, dr.w, dr.h); sx.filter = 'none';
+    }
+    function P(k) { return [dr.x + LM[k][0] * dr.w, dr.y + LM[k][1] * dr.h]; }
+    function ease(v) { return v < 0 ? 0 : v > 1 ? 1 : v * v * (3 - 2 * v); }
+    var acc = function () { return getComputedStyle(root).getPropertyValue('--acc').trim() || '#3fbfa6'; };
+    function mono(px) { x.font = (px * dpr) + 'px "IBM Plex Mono", ui-monospace, monospace'; }
+    function glitchFrame(strength) {
+      // horizontal slices + rgb split
+      var n = 3 + Math.floor(strength * 5), i;
+      for (i = 0; i < n; i++) { var sy = Math.random() * H, sh = (4 + Math.random() * 26) * dpr, off = (Math.random() - .5) * 60 * dpr * strength; x.drawImage(src, 0, sy, W, sh, off, sy, W, sh); }
+      x.globalCompositeOperation = 'screen'; x.globalAlpha = .35 * strength;
+      x.drawImage(src, 6 * dpr * strength, 0); x.drawImage(src, -6 * dpr * strength, 0);
+      x.globalAlpha = 1; x.globalCompositeOperation = 'source-over';
+    }
+    function draw(ts) {
+      if (!ready) return;
+      if (!t0) t0 = ts; var t = ts - t0, col = acc();
+      x.clearRect(0, 0, W, H);
+      // phase A: scan reveal 0..1800
+      var scan = ease(t / 1800), sy = scan * H;
+      x.fillStyle = '#0a0b0e'; x.fillRect(0, 0, W, H);
+      // wireframe grid under unrevealed area
+      x.strokeStyle = 'rgba(255,255,255,.05)'; x.lineWidth = dpr; var g = 28 * dpr, gx;
+      for (gx = 0; gx < W; gx += g) { x.beginPath(); x.moveTo(gx, 0); x.lineTo(gx, H); x.stroke(); }
+      for (gx = 0; gx < H; gx += g) { x.beginPath(); x.moveTo(0, gx); x.lineTo(W, gx); x.stroke(); }
+      // revealed image
+      x.drawImage(src, 0, 0, W, sy, 0, 0, W, sy);
+      // scanline glow
+      if (scan < 1) { var grd = x.createLinearGradient(0, sy - 40 * dpr, 0, sy + 4 * dpr); grd.addColorStop(0, 'rgba(0,0,0,0)'); grd.addColorStop(1, col); x.fillStyle = grd; x.globalAlpha = .55; x.fillRect(0, sy - 40 * dpr, W, 44 * dpr); x.globalAlpha = 1; x.fillStyle = col; x.fillRect(0, sy, W, 2 * dpr); }
+      // tint + scanlines
+      x.globalCompositeOperation = 'multiply'; x.fillStyle = 'rgba(205,236,228,.92)'; x.fillRect(0, 0, W, sy); x.globalCompositeOperation = 'source-over';
+      x.fillStyle = 'rgba(0,0,0,.18)'; for (gx = 0; gx < sy; gx += 3 * dpr) x.fillRect(0, gx, W, dpr);
+      // face bracket box
+      var bb = ease((t - 900) / 700); if (bb > 0) { var bx = dr.x + .22 * dr.w, by = dr.y + .06 * dr.h, bw = .56 * dr.w, bh = .68 * dr.h, L = 16 * dpr * bb; x.globalAlpha = bb; x.lineWidth = 1.5 * dpr;
+        [[bx, by, 1, 1], [bx + bw, by, -1, 1], [bx, by + bh, 1, -1], [bx + bw, by + bh, -1, -1]].forEach(function (c) { x.beginPath(); x.moveTo(c[0], c[1] + c[3] * L); x.lineTo(c[0], c[1]); x.lineTo(c[0] + c[2] * L, c[1]); x.stroke(); }); x.globalAlpha = 1; }
+      // phase C: HUD text typing (t>1500), left column
+      mono(10); x.textBaseline = 'top';
+      (W / dpr < 520 ? HUD.slice(0, 3) : HUD).forEach(function (line, i) { var st = 1500 + i * 260, n = Math.floor((t - st) / 18); if (n <= 0) return; var txt = line.slice(0, n), ty = 14 * dpr + i * 15 * dpr, tx = 14 * dpr;
+        x.fillStyle = 'rgba(12,13,16,.6)'; x.fillRect(tx - 4 * dpr, ty - 2 * dpr, x.measureText(txt).width + 8 * dpr, 14 * dpr); x.fillStyle = i === 0 ? col : 'rgba(236,236,236,.85)'; x.fillText(txt, tx, ty); });
+      // phase D: neural traces from crown/temples (t>2600)
+      var tr = ease((t - 2600) / 900); if (tr > 0) { x.lineWidth = dpr; [['crown', -30, -90], ['lt', -70, -40], ['rt', 70, -40]].forEach(function (d, i) { var p = P(d[0]), ex = p[0] + d[1] * dpr * 1.6, ey = p[1] + d[2] * dpr * 1.6, mx = ex, my = p[1];
+          x.strokeStyle = col; x.globalAlpha = .7 * tr; x.beginPath(); x.moveTo(p[0], p[1]); x.lineTo(mx, my); x.lineTo(ex, ey); x.stroke();
+          var ph = ((ts / 900) + i * .33) % 1, px = ph < .5 ? p[0] + (mx - p[0]) * ph * 2 : mx + (ex - mx) * (ph - .5) * 2, py = ph < .5 ? p[1] : my + (ey - my) * (ph - .5) * 2;
+          x.fillStyle = col; x.beginPath(); x.arc(px, py, 2.5 * dpr, 0, 6.283); x.fill(); x.globalAlpha = 1; }); }
+      // glitch bursts at 2100, 2400, 3300 (+ idle every ~7s)
+      var gs = 0; [2100, 2450, 3300].forEach(function (g0) { if (t > g0 && t < g0 + 140) gs = Math.max(gs, 1 - (t - g0) / 140); });
+      if (t > 4500) { if (!nextGlitch) nextGlitch = ts + 6000 + Math.random() * 3000; if (ts > nextGlitch) { idleT = ts; nextGlitch = ts + 6000 + Math.random() * 4000; } if (ts - idleT < 120) gs = Math.max(gs, .5 * (1 - (ts - idleT) / 120)); }
+      if (gs > 0) glitchFrame(gs);
+      // vignette
+      var vg = x.createRadialGradient(W / 2, H / 2, H * .3, W / 2, H / 2, H * .8); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)'); x.fillStyle = vg; x.fillRect(0, 0, W, H);
+      raf = requestAnimationFrame(draw);
+    }
+    function start() { if (ready) return; size(); ready = true; box.classList.add('live');
+      if (reduce) { t0 = -1e9; draw(1e9 + 5000); cancelAnimationFrame(raf); return; }
+      raf = requestAnimationFrame(draw); }
+    if (img.complete && img.naturalWidth) start(); else img.addEventListener('load', start);
+    img.addEventListener('error', function () { box.classList.remove('live'); });
+    addEventListener('resize', function () { if (ready) size(); });
+    document.addEventListener('visibilitychange', function () { if (!ready || reduce) return; if (document.hidden) cancelAnimationFrame(raf); else raf = requestAnimationFrame(draw); });
   })();
 
   /* ---------- network canvas ---------- */
@@ -238,6 +311,15 @@
     }
   })();
 
+  /* ---------- mobile: demo toggles + dots nav ---------- */
+  $$('.dtoggle').forEach(function (b) { b.addEventListener('click', function () { var d = b.closest('.demo'), open = d.classList.toggle('open'); b.setAttribute('aria-expanded', open); if (open) setTimeout(function () { d.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' }); }, 60); }); });
+  var dots = $('.dots');
+  if (dots) { var links = $$('a', dots);
+    $$('.proj').forEach(function (s) { new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) links.forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-d') === s.id); }); }); }, { threshold: .35 }).observe(s); });
+    new IntersectionObserver(function (es) { es.forEach(function (e) { dots.classList.toggle('show', e.isIntersecting); }); }, { threshold: 0 }).observe($('#projects'));
+    links.forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); var s = document.getElementById(a.getAttribute('data-d')); if (s) s.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); }); });
+  }
+
   /* ---------- overlay ---------- */
   var ov = $('#ov'), cur = null, idx = 0, lastFocus = null;
   function openCase(id) {
@@ -245,7 +327,7 @@
     ov.style.setProperty('--pc', COL[id]);
     $('#ovk').textContent = p.k; $('#ovt').textContent = p.tt; $('#ovd').textContent = p.ovd;
     var st = $('#ovst'); st.textContent = ''; p.stats.forEach(function (s) { var d = el('div'); d.appendChild(el('b', null, s[0])); d.appendChild(el('span', null, s[1])); st.appendChild(d); });
-    var dc = $('#ovdec'); dc.textContent = ''; p.dec.forEach(function (s) { var d = el('div'); d.appendChild(el('h5', null, s[0])); d.appendChild(el('p', null, s[1])); dc.appendChild(d); });
+    var dc = $('#ovdec'); dc.textContent = ''; p.dec.forEach(function (s) { var d = el('div'); d.appendChild(el('h4', null, s[0])); d.appendChild(el('p', null, s[1])); dc.appendChild(d); });
     var th = $('#ovth'); th.textContent = ''; p.gallery.forEach(function (g, i) { var b = el('button'); b.type = 'button'; b.setAttribute('data-i', i); b.setAttribute('aria-label', (i + 1) + '/' + p.gallery.length); var im = el('img'); im.alt = ''; im.loading = 'lazy'; im.src = D.base + 'assets/' + g[0]; b.appendChild(im); th.appendChild(b); });
     show(0); ov.classList.add('on'); document.body.style.overflow = 'hidden'; $('#ovx').focus();
   }
@@ -290,7 +372,9 @@
     if (e.key === 'Escape') { closePal(); closeCase(); return; }
     if (pal.classList.contains('on')) { var n = filtered.length; if (!n) return;
       if (e.key === 'ArrowDown') { e.preventDefault(); sel = (sel + 1) % n; render(); } else if (e.key === 'ArrowUp') { e.preventDefault(); sel = (sel - 1 + n) % n; render(); } else if (e.key === 'Enter') go(filtered[sel][1]); return; }
-    if (ov.classList.contains('on')) { if (e.key === 'ArrowRight') show(idx + 1); if (e.key === 'ArrowLeft') show(idx - 1); }
+    if (ov.classList.contains('on')) { if (e.key === 'ArrowRight') show(idx + 1); if (e.key === 'ArrowLeft') show(idx - 1);
+      if (e.key === 'Tab') { var f = $$('button, [href], input, [tabindex]:not([tabindex="-1"])', ov).filter(function (n) { return n.offsetParent !== null; }); if (!f.length) return;
+        var first = f[0], last = f[f.length - 1]; if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } } }
   });
 
   /* ---------- hud clock ---------- */

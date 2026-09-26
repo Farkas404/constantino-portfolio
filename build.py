@@ -17,7 +17,7 @@ def chips(items, cls): return f'<div class="{cls}">' + ''.join(f'<span>{esc(i)}<
 def demo_html(kind, u, lang):
     if kind == 'iron':
         cols = u['demo_iron_cols']
-        return f'''<div class="demo glass" aria-live="polite"><div class="dh"><span class="k">{esc(u['demo_k'])}</span><small>{esc(u['demo_iron_hint'])}</small></div><p class="dt">{esc(u['demo_iron_title'])}</p>
+        return f'''<div class="demo glass" aria-label="{esc(u['demo_iron_title'])}"><div class="dh"><span class="k">{esc(u['demo_k'])}</span><small>{esc(u['demo_iron_hint'])}</small></div><p class="dt">{esc(u['demo_iron_title'])}</p>
 <div class="feed" id="feed"><div class="row head"><span>{esc(cols[0])}</span><span class="s">{esc(cols[1])}</span><span>{esc(cols[2])}</span><span class="r">{esc(cols[3])}</span></div></div>
 <div class="feedstat"><span>CRITICAL <b id="fc-critical">0</b></span><span>WARNING <b id="fc-warning">0</b></span><span>PENTEST <b id="fc-pentest">0</b></span></div></div>'''
     if kind == 'db':
@@ -50,13 +50,15 @@ def project_html(p, u, lang, i):
     else:
         fr = f'<div class="fr"><picture><source type="image/webp" srcset="assets/{p["img"].replace(".jpg",".webp")}"><img src="assets/{p["img"]}" alt="{esc(p["alt"])}" width="1400" height="{IMGH.get(p["img"],800)}" loading="{"eager" if i==0 else "lazy"}" decoding="async"></picture></div>'
     demo = demo_html(p.get('demo'), u, lang)
+    if demo:
+        demo = re.sub(r'(<p class="dt">.*?</p>)', r'\1<button type="button" class="dtoggle" aria-expanded="false"><span class="o1">' + esc(u['demo_open']) + '</span><span class="o2">' + esc(u['demo_close']) + '</span> <span class="ar" aria-hidden="true">▾</span></button><div class="dbody">', demo, count=1, flags=re.S)
+        demo = demo[:-len('</div>')] + '</div></div>'
     return f'''<section class="proj p-{p['id']}" data-acc="{c}" id="{p['id']}">
   <div class="wrap pg">
     <div class="pt">
       <div class="n rv">{esc(p['k'])}</div>
       <h3 class="rv">{p['t']}</h3>
       <p class="tl rv d1">{esc(p['tl'])}</p>
-      <p class="ds rv d1">{esc(p['ds'])}</p>
       <div class="facts glass rv d2">{facts_html(p['facts'])}</div>
       {chips(p['stack'],'stack rv d2')}
       <button class="btn open rv d3" type="button" data-open="{p['id']}">{esc(u['open_case'])} <span class="ar" aria-hidden="true">→</span></button>
@@ -72,8 +74,8 @@ IMGH = {'iron-1.jpg': 708, 'relais-1.jpg': 750, 'tonal-1.jpg': 883, 'sm-1.jpg': 
 def page(lang, inline=False, artifact=False):
     u = UI[lang]; projects = PROJECTS[lang]
     other_href = ('en/index.html' if lang == 'de' else 'https://claude.ai/artifact/YKDFrxizW79KVToLZci3fw') if artifact else u['other_href']
-    data = {'ui': {k: u[k] for k in ('term', 'pal', 'pal_none', 'pal_sec', 'pal_case', 'pal_ext')},
-            'projects': {p['id']: {k: p[k] for k in ('k', 'tt', 'ovd', 'gallery', 'stats', 'dec')} for p in projects},
+    data = {'ui': {k: u[k] for k in ('term', 'term_m', 'pal', 'pal_none', 'pal_sec', 'pal_case', 'pal_ext', 'demo_open', 'demo_close')},
+            'projects': {p['id']: dict({k: p[k] for k in ('k', 'tt', 'gallery', 'stats', 'dec')}, ovd=p['ds'] + ' ' + p['ovd']) for p in projects},
             'colors': COLORS, 'db': DB_DEMO[lang], 'iron': IRON_DEMO[lang], 'base': ('' if lang=='de' else '../')}
     data_json = json.dumps(data, ensure_ascii=False).replace('</', '<\\/')
     head_assets = (f'<style>{CSS}</style>' if inline else '<link rel="stylesheet" href="css/style.css">')
@@ -91,13 +93,13 @@ def page(lang, inline=False, artifact=False):
 <meta property="og:type" content="website"><meta property="og:title" content="{esc(u['title'])}"><meta property="og:description" content="{esc(u['desc'])}"><meta property="og:url" content="{canonical}"><meta property="og:image" content="{og_img}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:locale" content="{'de_DE' if lang=='de' else 'en_GB'}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/farkas-logo.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<link rel="preload" as="image" href="assets/portrait.webp" type="image/webp" media="(min-width:901px)">
+<link rel="preload" as="image" href="assets/portrait.webp" type="image/webp">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 {head_assets}
 <script type="application/ld+json">{json.dumps({"@context":"https://schema.org","@type":"Person","name":"Constantino Carneiro-Fernández","jobTitle":"UX / Fullstack Developer","url":SITE,"email":"mailto:ccf.szilard@gmail.com","address":{"@type":"PostalAddress","addressLocality":"Regensburg","addressCountry":"DE"},"sameAs":["https://github.com/Farkas404","https://www.linkedin.com/in/constantino-c-2957731a2"]},ensure_ascii=False)}</script>'''
     hfacts = ''.join(f'<li><b>{esc(n)}</b>{esc(t)}</li>' for n, t in u['facts'])
-    method = ''.join(f'<div class="m glass rv d{i}"><div class="num">{n}</div><h4>{esc(h)}</h4><p>{esc(p)}</p><div class="ex"><b>{esc(bl)}</b> {esc(ex)}</div></div>' for i, (n, h, p, bl, ex) in enumerate(u['method']))
+    method = ''.join(f'<div class="m glass rv d{i}"><div class="num">{n}</div><h3>{esc(h)}</h3><p>{esc(p)}</p><div class="ex"><b>{esc(bl)}</b> {esc(ex)}</div></div>' for i, (n, h, p, bl, ex) in enumerate(u['method']))
     tline = ''.join(f'<li><span>{y}</span><div><b>{t}</b><br>{d}</div></li>' for y, t, d in u['timeline'])
     projs = '\n'.join(project_html(p, u, lang, i) for i, p in enumerate(projects))
     body = f'''<canvas id="net" aria-hidden="true"></canvas>
@@ -108,7 +110,7 @@ def page(lang, inline=False, artifact=False):
 <header class="nav">
   <a class="brand" href="#top"><img src="assets/farkas-logo.svg" alt="" width="30" height="30"><span><b>constantino</b>@farkas ~ %</span></a>
   <div class="navr">
-    <button class="chip" id="palbtn" type="button">{esc(u['jump'])} <kbd>⌘K</kbd></button>
+    <button class="chip" id="palbtn" type="button"><span class="dsk">{esc(u['jump'])}</span><span class="mob">{esc(u['jump_m'])}</span> <kbd>⌘K</kbd></button>
     <a class="chip" href="#contact">{esc(u['sayhi'])}</a>
     <a class="chip lang" href="{other_href}" lang="{u['other']}" hreflang="{u['other']}">{u['other_label']}</a>
   </div>
@@ -124,7 +126,7 @@ def page(lang, inline=False, artifact=False):
       <div class="cta rv in d2"><a class="btn pri" href="#work">{esc(u['cta1'])} <span class="mono" aria-hidden="true">↓</span></a><a class="btn" href="#about">{esc(u['cta2'])}</a></div>
       <div class="scrollhint rv in d3">{esc(u['scroll'])}</div>
     </div>
-    <div class="portrait glass rv in d1"><picture><source media="(max-width:900px)" srcset="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="><source type="image/webp" srcset="assets/portrait.webp"><img src="assets/portrait.jpg" alt="Constantino Carneiro-Fernández" width="640" height="862" fetchpriority="high"></picture><div class="tag"><span>● {esc(u['avail'])}</span><span>{esc(u['loc'])}</span></div></div>
+    <div class="portrait glass rv in d1" id="portrait"><picture><source type="image/webp" srcset="assets/portrait.webp"><img id="pimg" src="assets/portrait.jpg" alt="Constantino Carneiro-Fernández" width="640" height="862" fetchpriority="high" crossorigin="anonymous"></picture><canvas id="pcv" aria-hidden="true"></canvas><div class="tag"><span>● {esc(u['avail'])}</span><span>{esc(u['loc'])}</span></div></div>
   </div>
 </section>
 <div class="wrap sh" id="work"><div><span class="k">{u['work_k']}</span><h2>{esc(u['work_h'])}</h2></div><span class="k">{u['work_s']}</span></div>
@@ -161,6 +163,7 @@ def page(lang, inline=False, artifact=False):
 </div>
 <div class="pal" id="pal"><div class="box glass"><input id="palq" type="text" placeholder="{esc(u['pal_ph'])}" autocomplete="off" aria-label="{esc(u['jump'])}"><ul id="pall"></ul></div></div>
 <div class="toast glass" id="toast">{esc(u['copied'])}</div>
+<nav class="dots" aria-label="Projekte"><a href="#irongrid" data-d="irongrid"><span class="sr">IronGrid</span></a><a href="#relais" data-d="relais"><span class="sr">RELAIS</span></a><a href="#tonal" data-d="tonal"><span class="sr">TONAL</span></a><a href="#securitymonitor" data-d="securitymonitor"><span class="sr">Security Monitor</span></a><a href="#dbnavigator" data-d="dbnavigator"><span class="sr">DB Navigator</span></a></nav>
 <div class="hud" aria-hidden="true"><span>SYS <b id="hudt">--:--:--</b></span><span>49.01°N 12.10°E</span><span>NODES <b id="hudn">0</b></span><span>LINK <b>OK</b></span></div>
 <script id="site-data" type="application/json">{data_json}</script>
 {script}'''
