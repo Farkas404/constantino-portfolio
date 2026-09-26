@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://szilardfarkas.uk/sitemap.xml
