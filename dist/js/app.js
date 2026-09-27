@@ -311,6 +311,75 @@
     }
   })();
 
+  /* ---------- live demo: KFIT session mode (heart rate, zones, calories) ---------- */
+  (function () {
+    var root = $('#kf'); if (!root) return;
+    var cv = $('#kfc'), ctx = cv.getContext('2d'), go = $('#kfgo'), rng = $('#kfrange');
+    var hrEl = $('#kfhr'), zEl = $('#kfz'), znEl = $('#kfzn'), kEl = $('#kfkcal'), tEl = $('#kftime'), phEl = $('#kfph'), setEl = $('#kfset'), rpeEl = $('#kfrpe');
+    var bars = $$('#kfbars i'), phase = $('#kfphase');
+    var T = { work: root.dataset.work, rest: root.dataset.rest, start: root.dataset.start, pause: root.dataset.pause, done: root.dataset.done, again: root.dataset.again };
+    // demo persona: 30 y, 62 kg, female -> HRmax 190. Keytel et al. 2005 (kJ/min) -> kcal
+    var AGE = 30, KG = 62, HRMAX = 190, WORK = 30, REST = 15, SETS = 4;
+    var ZC = ['#7d8590', '#38bdf8', '#35d07f', '#f4b740', '#ff5470'], PINK = '#ff2fa6', PURP = '#8b5cf6';
+    var hr = 72, kcal = 0, tz = [0, 0, 0, 0, 0], hist = [], running = false, done = false, t = 0, last = 0, raf = 0;
+    function zone(h) { var p = h / HRMAX; return p < .6 ? 0 : p < .7 ? 1 : p < .8 ? 2 : p < .9 ? 3 : 4; }
+    function kcalPerMin(h) { var kj = -20.4022 + 0.4472 * h - 0.1263 * KG + 0.074 * AGE; return Math.max(0, kj / 4.184); }
+    function target() { if (done) return 72; var rpe = +rng.value; return inWork() ? 108 + (rpe - 5) * 13.4 : 104; }
+    function cyc() { return WORK + REST; }
+    function setIdx() { return Math.min(SETS - 1, Math.floor(t / cyc())); }
+    function inWork() { return (t % cyc()) < WORK; }
+    function fmt(s) { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+    function draw() {
+      var W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+      // zone bands
+      for (var z = 0; z < 5; z++) { var lo = [0, .6, .7, .8, .9][z], hi = [.6, .7, .8, .9, 1.02][z]; ctx.fillStyle = ZC[z]; ctx.globalAlpha = .07; ctx.fillRect(0, H - hi * H, W, (hi - lo) * H); }
+      ctx.globalAlpha = 1;
+      // work/rest shading in the past 90 s
+      var N = 360, dt = .25; // 90 s at 4 Hz
+      for (var i = 0; i < hist.length; i++) { var x = W - (hist.length - i) * (W / N); if (hist[i][1]) { ctx.fillStyle = 'rgba(255,47,166,.06)'; ctx.fillRect(x, 0, W / N + 1, H); } }
+      // trace
+      ctx.beginPath(); ctx.lineWidth = 2; ctx.strokeStyle = PINK; ctx.lineJoin = 'round';
+      for (var j = 0; j < hist.length; j++) { var xx = W - (hist.length - j) * (W / N), yy = H - (hist[j][0] / HRMAX) * H; j ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
+      ctx.stroke();
+      if (hist.length) { var lp = hist[hist.length - 1]; ctx.fillStyle = PINK; ctx.beginPath(); ctx.arc(W - (W / N), H - (lp[0] / HRMAX) * H, 3.5, 0, 6.283); ctx.fill(); }
+    }
+    function paint() {
+      var z = zone(hr), w = inWork() && !done;
+      hrEl.textContent = Math.round(hr); zEl.textContent = 'Z' + (z + 1); zEl.style.color = ZC[z];
+      znEl.textContent = Math.round(hr / HRMAX * 100) + '% max'; kEl.textContent = kcal < 10 ? kcal.toFixed(1) : Math.round(kcal);
+      var tot = tz.reduce(function (a, b) { return a + b; }, 0) || 1;
+      bars.forEach(function (b, i) { b.style.width = (tz[i] / tot * 100) + '%'; b.style.background = ZC[i]; });
+      if (done) { phEl.textContent = T.done; tEl.textContent = fmt(0); phase.className = 'kft done'; go.textContent = T.again; go.setAttribute('aria-pressed', 'false'); }
+      else { phEl.textContent = w ? T.work : T.rest; tEl.textContent = fmt(w ? WORK - (t % cyc()) : cyc() - (t % cyc())); setEl.textContent = setIdx() + 1; phase.className = 'kft ' + (w ? 'work' : 'rest'); go.textContent = running ? T.pause : T.start; go.setAttribute('aria-pressed', running ? 'true' : 'false'); }
+      rpeEl.textContent = 'RPE ' + rng.value;
+      draw();
+    }
+    function tick(now) {
+      if (!running) return;
+      var dt = Math.min(.5, (now - last) / 1000) || 0; last = now;
+      // heart rate follows the target with inertia: rises faster than it recovers
+      var tg = target(), tau = tg > hr ? 18 : 32;
+      hr += (tg - hr) * (1 - Math.exp(-dt / tau)) + (Math.random() - .5) * 1.2;
+      hr = Math.max(60, Math.min(HRMAX, hr));
+      kcal += kcalPerMin(hr) * dt / 60; tz[zone(hr)] += dt;
+      t += dt;
+      hist.push([hr, inWork() ? 1 : 0]); if (hist.length > 360) hist.shift();
+      if (t >= cyc() * SETS) { done = true; running = false; }
+      paint(); if (running) raf = requestAnimationFrame(tick);
+    }
+    function start() { running = true; last = performance.now(); raf = requestAnimationFrame(tick); paint(); }
+    function stop() { running = false; cancelAnimationFrame(raf); paint(); }
+    go.addEventListener('click', function () {
+      if (done) { done = false; t = 0; kcal = 0; hr = 72; tz = [0, 0, 0, 0, 0]; hist = []; start(); return; }
+      running ? stop() : start();
+    });
+    rng.addEventListener('input', paint);
+    document.addEventListener('visibilitychange', function () { if (document.hidden && running) stop(); });
+    // seed the trace with a flat resting line so the canvas is not empty before start
+    for (var s = 0; s < 120; s++) hist.push([72 + (Math.random() - .5), 0]);
+    paint();
+  })();
+
   /* ---------- mobile: demo toggles + dots nav ---------- */
   $$('.dtoggle').forEach(function (b) { b.addEventListener('click', function () { var d = b.closest('.demo'), open = d.classList.toggle('open'); b.setAttribute('aria-expanded', open); if (open) setTimeout(function () { d.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' }); }, 60); }); });
   var dots = $('.dots');
@@ -344,6 +413,13 @@
   ov.addEventListener('touchend', function (e) { var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) show(idx + (dx < 0 ? 1 : -1)); });
   if (location.hash && P[location.hash.slice(1)]) setTimeout(function () { openCase(location.hash.slice(1)); }, 600);
 
+  /* ---------- CV overlay ---------- */
+  var cvov = $('#cvov'), cvLast = null;
+  function openCV() { if (!cvov) return; cvLast = document.activeElement; cvov.classList.add('on'); document.body.style.overflow = 'hidden'; cvov.scrollTop = 0; $('#cvx').focus(); }
+  function closeCV() { if (!cvov || !cvov.classList.contains('on')) return; cvov.classList.remove('on'); document.body.style.overflow = ''; if (cvLast) cvLast.focus(); }
+  $$('[data-cv]').forEach(function (b) { b.addEventListener('click', openCV); });
+  if (cvov) { $('#cvx').addEventListener('click', closeCV); cvov.addEventListener('click', function (e) { if (e.target === cvov) closeCV(); }); }
+
   /* ---------- command palette ---------- */
   var items = UI.pal.slice(0, 1);
   Object.keys(P).forEach(function (id) { items.push([P[id].tt, id]); });
@@ -369,9 +445,10 @@
   pq.addEventListener('input', function () { sel = 0; render(); });
   addEventListener('keydown', function (e) {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); pal.classList.contains('on') ? closePal() : openPal(); return; }
-    if (e.key === 'Escape') { closePal(); closeCase(); return; }
+    if (e.key === 'Escape') { closePal(); closeCase(); closeCV(); return; }
     if (pal.classList.contains('on')) { var n = filtered.length; if (!n) return;
       if (e.key === 'ArrowDown') { e.preventDefault(); sel = (sel + 1) % n; render(); } else if (e.key === 'ArrowUp') { e.preventDefault(); sel = (sel - 1 + n) % n; render(); } else if (e.key === 'Enter') go(filtered[sel][1]); return; }
+    if (cvov && cvov.classList.contains('on') && e.key === 'Tab') { var cf = $$('button, [href], input, [tabindex]:not([tabindex="-1"])', cvov).filter(function (n) { return n.offsetParent !== null; }); if (cf.length) { var c0 = cf[0], c1 = cf[cf.length - 1]; if (e.shiftKey && document.activeElement === c0) { e.preventDefault(); c1.focus(); } else if (!e.shiftKey && document.activeElement === c1) { e.preventDefault(); c0.focus(); } } return; }
     if (ov.classList.contains('on')) { if (e.key === 'ArrowRight') show(idx + 1); if (e.key === 'ArrowLeft') show(idx - 1);
       if (e.key === 'Tab') { var f = $$('button, [href], input, [tabindex]:not([tabindex="-1"])', ov).filter(function (n) { return n.offsetParent !== null; }); if (!f.length) return;
         var first = f[0], last = f[f.length - 1]; if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } } }

@@ -2,7 +2,7 @@
 """Builds dist/ (site for nginx: de at /, en at /en/) and an inline artifact page."""
 import json, os, re, shutil, sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-from content import UI, PROJECTS, COLORS, DB_DEMO, IRON_DEMO
+from content import UI, PROJECTS, COLORS, DB_DEMO, IRON_DEMO, CV
 from html import escape as esc
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -41,6 +41,15 @@ def demo_html(kind, u, lang):
 <div class="tong"><div class="tonimg"><canvas id="tonc" width="334" height="476" aria-label="Shinbashi, Tokio"></canvas><img id="tonsrc" src="assets/tonal-photo.jpg" alt="" width="334" height="476" hidden decoding="async" crossorigin="anonymous"></div>
 <div class="tonsc"><div><span class="k">{esc(lb[0])}</span><canvas id="tonv" width="220" height="220" aria-hidden="true"></canvas></div><div><span class="k">{esc(lb[1])}</span><canvas id="tonp" width="330" height="120" aria-hidden="true"></canvas></div></div></div>
 <div class="tonsl"><label>{esc(sl[0])}<input type="range" id="t-temp" min="-100" max="100" value="0"></label><label>{esc(sl[1])}<input type="range" id="t-sat" min="0" max="200" value="100"></label><label>{esc(sl[2])}<input type="range" id="t-con" min="-100" max="100" value="0"></label></div></div>'''
+    if kind == 'kfit':
+        L = u['demo_kfit_lbl']
+        return f'''<div class="demo glass kf" id="kf" data-work="{esc(L[0])}" data-rest="{esc(L[1])}" data-start="{esc(L[7])}" data-pause="{esc(L[8])}" data-done="{esc(L[9])}" data-again="{esc(L[11])}"><div class="dh"><span class="k">{esc(u['demo_k'])}</span><small>{esc(u['demo_kfit_hint'])}</small></div><p class="dt">{esc(u['demo_kfit_title'])}</p>
+<div class="kfg"><div class="kft" id="kfphase"><span class="ph" id="kfph">{esc(L[0])}</span><b id="kftime">0:30</b><span class="set"><span>{esc(L[2])}</span> <i id="kfset">1</i>/4</span><button type="button" class="kfbtn" id="kfgo" aria-pressed="false">{esc(L[7])}</button></div>
+<div class="kfr"><canvas id="kfc" width="600" height="150" aria-hidden="true"></canvas>
+<div class="kfstats"><div><span class="k">{esc(L[3])}</span><b id="kfhr">72</b><small>bpm</small></div><div><span class="k">{esc(L[4])}</span><b id="kfz">Z1</b><small id="kfzn">&nbsp;</small></div><div><span class="k">{esc(L[5])}</span><b id="kfkcal">0</b><small>kcal</small></div></div>
+<div class="kfzones" aria-label="{esc(L[10])}"><span class="k">{esc(L[10])}</span><div class="bars" id="kfbars"><i></i><i></i><i></i><i></i><i></i></div></div></div></div>
+<label class="kfsl">{esc(L[6])} <span id="kfrpe">RPE 7</span><input type="range" id="kfrange" min="5" max="10" value="7" step="1" aria-label="{esc(L[6])}"></label>
+<p class="kfprof">{esc(u['demo_kfit_prof'])}</p></div>'''
     return ''
 
 def project_html(p, u, lang, i):
@@ -71,6 +80,28 @@ def project_html(p, u, lang, i):
 
 IMGH = {'iron-1.jpg': 708, 'relais-1.jpg': 750, 'tonal-1.jpg': 883, 'sm-1.jpg': 859, 'kfit-1.jpg': 829, 'kfit-2.jpg': 784, 'kfit-3.jpg': 829, 'kfit-4.jpg': 814, 'kfit-5.jpg': 747}
 
+def cv_html(lang, u):
+    c = CV[lang]
+    meta = ''.join((f'<a href="{esc(h)}"' + (' target="_blank" rel="noopener noreferrer"' if h.startswith('http') else '') + f'><span class="k">{esc(k)}</span>{esc(v)}</a>') if h else f'<span><span class="k">{esc(k)}</span>{esc(v)}</span>' for k, v, h in c['meta'])
+    skills = ''.join(f'<div><span class="k">{esc(k)}</span><b>{esc(v)}</b></div>' for k, v in c['skills'])
+    secs = ''
+    for title, items in c['sections']:
+        rows = ''
+        for d, t, org, bl in items:
+            bul = (f'<ul>' + ''.join(f'<li>{esc(b)}</li>' for b in bl) + '</ul>') if bl else ''
+            rows += f'<li><span class="d">{esc(d)}</span><div><b>{esc(t)}</b><i>{esc(org)}</i>{bul}</div></li>'
+        secs += f'<section><h4 class="k">{esc(title)}</h4><ul class="cvl">{rows}</ul></section>'
+    return f'''<div class="ov cvov" id="cvov" role="dialog" aria-modal="true" aria-labelledby="cvt">
+  <div class="in glass cv">
+    <div class="top"><div><span class="k">{esc(u['about_k'])}</span><h3 id="cvt">{esc(c['name'])}</h3><p class="ds">{esc(c['head'])}</p></div><button class="x" type="button" id="cvx" aria-label="{esc(u['cv_close'])}">×</button></div>
+    <div class="cvmeta">{meta}</div>
+    <p class="cvp">{esc(c['profile'])}</p>
+    <section><h4 class="k">{esc(c['skills_k'])}</h4><div class="cvsk">{skills}</div></section>
+    {secs}
+    <section><h4 class="k">{esc(c['style_k'])}</h4><p class="cvp">{esc(c['style'])}</p></section>
+  </div>
+</div>'''
+
 def page(lang, inline=False, artifact=False):
     u = UI[lang]; projects = PROJECTS[lang]
     other_href = ('en/index.html' if lang == 'de' else 'https://claude.ai/artifact/YKDFrxizW79KVToLZci3fw') if artifact else u['other_href']
@@ -100,7 +131,7 @@ def page(lang, inline=False, artifact=False):
 <script type="application/ld+json">{json.dumps({"@context":"https://schema.org","@type":"Person","name":"Constantino Carneiro-Fernández","jobTitle":"UX / Fullstack Developer","url":SITE,"email":"mailto:ccf.szilard@gmail.com","address":{"@type":"PostalAddress","addressLocality":"Regensburg","addressCountry":"DE"},"sameAs":["https://github.com/Farkas404","https://www.linkedin.com/in/constantino-c-2957731a2"]},ensure_ascii=False)}</script>'''
     hfacts = ''.join(f'<li><b>{esc(n)}</b>{esc(t)}</li>' for n, t in u['facts'])
     method = ''.join(f'<div class="m glass rv d{i}"><div class="num">{n}</div><h3>{esc(h)}</h3><p>{esc(p)}</p><div class="ex"><b>{esc(bl)}</b> {esc(ex)}</div></div>' for i, (n, h, p, bl, ex) in enumerate(u['method']))
-    tline = ''.join(f'<li><span>{y}</span><div><b>{t}</b><br>{d}</div></li>' for y, t, d in u['timeline'])
+    tline = ''.join(f'<li><span>{y}</span><div><b>{t}</b><br>{d}</div></li>' for y, t, d in u['timeline'][:4])
     projs = '\n'.join(project_html(p, u, lang, i) for i, p in enumerate(projects))
     body = f'''<canvas id="net" aria-hidden="true"></canvas>
 <div class="grid" aria-hidden="true"></div>
@@ -112,6 +143,7 @@ def page(lang, inline=False, artifact=False):
   <div class="navr">
     <button class="chip" id="palbtn" type="button"><span class="dsk">{esc(u['jump'])}</span><span class="mob">{esc(u['jump_m'])}</span> <kbd>⌘K</kbd></button>
     <a class="chip" href="#contact">{esc(u['sayhi'])}</a>
+    <button class="chip" type="button" data-cv>{esc(u['cv_nav'])}</button>
     <a class="chip lang" href="{other_href}" lang="{u['other']}" hreflang="{u['other']}">{u['other_label']}</a>
   </div>
 </header>
@@ -141,8 +173,8 @@ def page(lang, inline=False, artifact=False):
 <section class="about wrap" id="about" data-acc="#3fbfa6">
   <div class="sh"><div><span class="k">{esc(u['about_k'])}</span><h2>{esc(u['about_h'])}</h2></div></div>
   <div class="ag">
-    <div class="rv"><p>{u['about_p1']}</p><p>{u['about_p2']}</p><p>{esc(u['about_p3'])}</p>{chips(u['tools'],'tools')}{chips(u['langs'],'tools')}</div>
-    <ul class="tline rv d1">{tline}</ul>
+    <div class="rv"><p>{u['about_p1']}</p><p>{esc(u['about_p3'])}</p>{chips(u['tools'],'tools')}{chips(u['langs'],'tools')}</div>
+    <div class="cvcard glass rv d1"><span class="k">{esc(u['about_k'])}</span><ul class="tline">{tline}</ul><button class="btn pri" type="button" data-cv>{esc(u['cv_btn'])} <span class="mono" aria-hidden="true">→</span></button></div>
   </div>
 </section>
 <section class="contact wrap" id="contact" data-acc="#3fbfa6">
@@ -161,6 +193,7 @@ def page(lang, inline=False, artifact=False):
     <div class="cap" id="ovcap"></div><div class="th" id="ovth"></div><div class="stats" id="ovst"></div><div class="dec" id="ovdec"></div>
   </div>
 </div>
+{cv_html(lang, u)}
 <div class="pal" id="pal"><div class="box glass"><input id="palq" type="text" placeholder="{esc(u['pal_ph'])}" autocomplete="off" aria-label="{esc(u['jump'])}"><ul id="pall"></ul></div></div>
 <div class="toast glass" id="toast">{esc(u['copied'])}</div>
 <nav class="dots" aria-label="Projekte"><a href="#irongrid" data-d="irongrid"><span class="sr">IronGrid</span></a><a href="#relais" data-d="relais"><span class="sr">RELAIS</span></a><a href="#tonal" data-d="tonal"><span class="sr">TONAL</span></a><a href="#securitymonitor" data-d="securitymonitor"><span class="sr">Security Monitor</span></a><a href="#dbnavigator" data-d="dbnavigator"><span class="sr">DB Navigator</span></a><a href="#kfit" data-d="kfit"><span class="sr">KFIT</span></a></nav>
