@@ -9,8 +9,8 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--disp);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--disp);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:clip}
 img{max-width:100%;display:block}
 [hidden]{display:none!important}
 a{color:inherit;text-decoration:none}
@@ -133,7 +133,7 @@ main,header,footer{position:relative;z-index:2}
 .card3d .fr{border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.12);box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.4),0 0 120px -30px var(--pc);background:#000}
 .card3d .fr img{width:100%;height:auto}
 .card3d .fr.phone{width:min(100%,300px);margin-inline:auto;border:0;background:transparent;border-radius:40px;box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 120px -30px var(--pc)}
-.card3d .sheen{position:absolute;inset:0;border-radius:16px;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.12) 50%,transparent 60%);opacity:0;transition:opacity .4s;pointer-events:none;mix-blend-mode:screen}
+.card3d .sheen{position:absolute;inset:0;border-radius:16px;overflow:hidden;clip-path:inset(0 round 16px);background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.12) 50%,transparent 60%);opacity:0;transition:opacity .4s;pointer-events:none;mix-blend-mode:screen}
 .stage:hover .sheen{opacity:1}
 .stage .sys{position:absolute;left:14px;top:-30px;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.1em;z-index:2}
 .stage .sys i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--pc);margin-right:8px;box-shadow:0 0 12px var(--pc);animation:pulse 1.8s ease-in-out infinite}
@@ -331,8 +331,8 @@ footer{padding:30px 0 calc(30px + env(safe-area-inset-bottom,0px));font-family:v
   footer{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 }
 @media(hover:none){
-  .rv.in .stage .sheen{animation:sweep 1.4s ease-out .3s 1 both}
-  @keyframes sweep{0%{opacity:0;transform:translateX(-30%)}30%{opacity:1}100%{opacity:0;transform:translateX(30%)}}
+  .rv.in .stage .sheen{background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.14) 50%,transparent 65%);background-size:250% 100%;background-repeat:no-repeat;animation:sweep 1.4s ease-out .3s 1 both;overflow:hidden}
+  @keyframes sweep{0%{opacity:0;background-position:120% 0}30%{opacity:1}100%{opacity:0;background-position:-20% 0}}
 }
 
 /* ---- spacing / collision fixes ---- */
