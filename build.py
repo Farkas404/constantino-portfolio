@@ -10,6 +10,9 @@ SRC = os.path.join(ROOT, 'src'); DIST = os.path.join(ROOT, 'dist')
 CSS = open(os.path.join(SRC, 'style.css'), encoding='utf-8').read()
 JS = open(os.path.join(SRC, 'app.js'), encoding='utf-8').read()
 SITE = 'https://szilardfarkas.uk'
+import hashlib
+VER_CSS = hashlib.md5(CSS.encode('utf-8')).hexdigest()[:8]
+VER_JS = hashlib.md5(JS.encode('utf-8')).hexdigest()[:8]
 
 def facts_html(f): return ''.join(f'<div><span class="k">{esc(l)}</span><b>{esc(v)}</b></div>' for l, v in f)
 def chips(items, cls): return f'<div class="{cls}">' + ''.join(f'<span>{esc(i)}</span>' for i in items) + '</div>'
@@ -43,12 +46,19 @@ def demo_html(kind, u, lang):
 <div class="tonsl"><label>{esc(sl[0])}<input type="range" id="t-temp" min="-100" max="100" value="0"></label><label>{esc(sl[1])}<input type="range" id="t-sat" min="0" max="200" value="100"></label><label>{esc(sl[2])}<input type="range" id="t-con" min="-100" max="100" value="0"></label></div></div>'''
     if kind == 'kfit':
         L = u['demo_kfit_lbl']
-        return f'''<div class="demo glass kf" id="kf" data-work="{esc(L[0])}" data-rest="{esc(L[1])}" data-start="{esc(L[7])}" data-pause="{esc(L[8])}" data-done="{esc(L[9])}" data-again="{esc(L[11])}"><div class="dh"><span class="k">{esc(u['demo_k'])}</span><small>{esc(u['demo_kfit_hint'])}</small></div><p class="dt">{esc(u['demo_kfit_title'])}</p>
-<div class="kfg"><div class="kft" id="kfphase"><span class="ph" id="kfph">{esc(L[0])}</span><b id="kftime">0:30</b><span class="set"><span>{esc(L[2])}</span> <i id="kfset">1</i>/4</span><button type="button" class="kfbtn" id="kfgo" aria-pressed="false">{esc(L[7])}</button></div>
-<div class="kfr"><canvas id="kfc" width="600" height="150" aria-hidden="true"></canvas>
-<div class="kfstats"><div><span class="k">{esc(L[3])}</span><b id="kfhr">72</b><small>bpm</small></div><div><span class="k">{esc(L[4])}</span><b id="kfz">Z1</b><small id="kfzn">&nbsp;</small></div><div><span class="k">{esc(L[5])}</span><b id="kfkcal">0</b><small>kcal</small></div></div>
-<div class="kfzones" aria-label="{esc(L[10])}"><span class="k">{esc(L[10])}</span><div class="bars" id="kfbars"><i></i><i></i><i></i><i></i><i></i></div></div></div></div>
-<label class="kfsl">{esc(L[6])} <span id="kfrpe">RPE 7</span><input type="range" id="kfrange" min="5" max="10" value="7" step="1" aria-label="{esc(L[6])}"></label>
+        dl = ' '.join(f'data-l{i}="{esc(x)}"' for i, x in enumerate(L))
+        return f'''<div class="demo glass kf" id="kf" {dl}><div class="dh"><span class="k">{esc(u['demo_k'])}</span><small>{esc(u['demo_kfit_hint'])}</small></div><p class="dt">{esc(u['demo_kfit_title'])}</p>
+<div class="kfctl">
+<label><span>{esc(L[0])}<output id="kfo-age">30</output></span><input type="range" id="kf-age" min="18" max="65" value="30" aria-label="{esc(L[0])}"></label>
+<label><span>{esc(L[1])}<output id="kfo-kg">62 kg</output></span><input type="range" id="kf-kg" min="45" max="120" value="62" aria-label="{esc(L[1])}"></label>
+<div class="seg" role="group" aria-label="{esc(L[2])}"><span>{esc(L[2])}</span><div><button type="button" data-sex="f" aria-pressed="true">{esc(L[15])}</button><button type="button" data-sex="m" aria-pressed="false">{esc(L[16])}</button></div></div>
+<label><span>{esc(L[3])}<output id="kfo-dur">30 min</output></span><input type="range" id="kf-dur" min="10" max="60" step="5" value="30" aria-label="{esc(L[3])}"></label>
+<label><span>{esc(L[4])}<output id="kfo-rpe">RPE 7</output></span><input type="range" id="kf-rpe" min="5" max="10" value="7" aria-label="{esc(L[4])}"></label>
+</div>
+<div class="kfchart"><canvas id="kfc" aria-hidden="true"></canvas>
+<div class="kfleg"><span><i class="l1"></i>{esc(L[20])}</span><span><i class="l2"></i>{esc(L[21])}</span><span><i class="l3"></i>{esc(L[17])}</span></div></div>
+<div class="kfstats"><div><span class="k">{esc(L[8])}</span><b id="kf-kcal">0</b><small>kcal</small></div><div><span class="k">{esc(L[9])}</span><b id="kf-avg">0</b><small>bpm</small></div><div><span class="k">{esc(L[10])}</span><b id="kf-max">0</b><small>bpm</small></div><div><span class="k">{esc(L[11])}</span><b id="kf-hi">0</b><small>min</small></div></div>
+<div class="kfplay"><button type="button" class="kfbtn" id="kfgo" aria-pressed="false">{esc(L[5])}</button><span class="kfclock" id="kfclock">0:00</span><span class="kfph" id="kfph"></span><span class="kflive" id="kflive"></span></div>
 <p class="kfprof">{esc(u['demo_kfit_prof'])}</p></div>'''
     return ''
 
@@ -60,8 +70,11 @@ def project_html(p, u, lang, i):
         fr = f'<div class="fr"><picture><source type="image/webp" srcset="assets/{p["img"].replace(".jpg",".webp")}"><img src="assets/{p["img"]}" alt="{esc(p["alt"])}" width="1400" height="{IMGH.get(p["img"],800)}" loading="{"eager" if i==0 else "lazy"}" decoding="async"></picture></div>'
     demo = demo_html(p.get('demo'), u, lang)
     if demo:
-        demo = re.sub(r'(<p class="dt">.*?</p>)', r'\1<button type="button" class="dtoggle" aria-expanded="false"><span class="o1">' + esc(u['demo_open']) + '</span><span class="o2">' + esc(u['demo_close']) + '</span> <span class="ar" aria-hidden="true">▾</span></button><div class="dbody">', demo, count=1, flags=re.S)
+        first = (i == 0)
+        tryline = '<p class="dtry">' + esc(u['demo_try'].get(p['demo'], '')) + '</p>' if u['demo_try'].get(p['demo']) else ''
+        demo = re.sub(r'(<p class="dt">.*?</p>)', r'\1<button type="button" class="dtoggle" aria-expanded="' + ('true' if first else 'false') + '"><span class="o1">' + esc(u['demo_open']) + '</span><span class="o2">' + esc(u['demo_close']) + '</span> <span class="ar" aria-hidden="true">▾</span></button><div class="dbody">' + tryline, demo, count=1, flags=re.S)
         demo = demo[:-len('</div>')] + '</div></div>'
+        if first: demo = demo.replace('class="demo glass', 'class="demo open glass', 1)
     return f'''<section class="proj p-{p['id']}" data-acc="{c}" id="{p['id']}">
   <div class="wrap pg">
     <div class="pt">
@@ -109,8 +122,8 @@ def page(lang, inline=False, artifact=False):
             'projects': {p['id']: dict({k: p[k] for k in ('k', 'tt', 'gallery', 'stats', 'dec')}, ovd=p['ds'] + ' ' + p['ovd']) for p in projects},
             'colors': COLORS, 'db': DB_DEMO[lang], 'iron': IRON_DEMO[lang], 'base': ('' if lang=='de' else '../')}
     data_json = json.dumps(data, ensure_ascii=False).replace('</', '<\\/')
-    head_assets = (f'<style>{CSS}</style>' if inline else '<link rel="stylesheet" href="css/style.css">')
-    script = (f'<script>{JS}</script>' if inline else '<script src="js/app.js" defer></script>')
+    head_assets = (f'<style>{CSS}</style>' if inline else f'<link rel="stylesheet" href="css/style.css?v={VER_CSS}">')
+    script = (f'<script>{JS}</script>' if inline else f'<script src="js/app.js?v={VER_JS}" defer></script>')
     canonical = SITE + ('/' if lang == 'de' else '/en/')
     og_img = SITE + '/assets/og.png'
     head = f'''<meta charset="utf-8">
@@ -155,7 +168,7 @@ def page(lang, inline=False, artifact=False):
       <h1 class="rv in">{u['h1']}</h1>
       <p class="lead rv in d1">{esc(u['lead'])}</p>
       <ul class="hfacts rv in d1">{hfacts}</ul>
-      <div class="cta rv in d2"><a class="btn pri" href="#work">{esc(u['cta1'])} <span class="mono" aria-hidden="true">↓</span></a><a class="btn" href="#about">{esc(u['cta2'])}</a></div>
+      <div class="cta rv in d2"><a class="btn pri" href="#work">{esc(u['cta1'])} <span class="mono" aria-hidden="true">↓</span></a><button class="btn" type="button" data-cv>{esc(u['cta2'])}</button></div>
       <div class="scrollhint rv in d3">{esc(u['scroll'])}</div>
     </div>
     <div class="portrait glass rv in d1" id="portrait"><picture><source type="image/webp" srcset="assets/portrait.webp"><img id="pimg" src="assets/portrait.jpg" alt="Constantino Carneiro-Fernández" width="640" height="862" fetchpriority="high" crossorigin="anonymous"></picture><canvas id="pcv" aria-hidden="true"></canvas><div class="tag"><span>● {esc(u['avail'])}</span><span>{esc(u['loc'])}</span></div></div>

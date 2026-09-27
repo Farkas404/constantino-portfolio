@@ -52,9 +52,10 @@ UI = {
   demo_relais_btn=['Start E0.0','Stopp E0.1','Not-Aus E0.2'], demo_relais_out='Motor A4.0', demo_relais_awl='AWL · Netzwerk 1', demo_relais_scope='Oszilloskop · A4.0',
   demo_tonal_title='Scopes aus echten Pixeln', demo_tonal_hint='Regler bewegen, Vektorskop und Parade rechnen live',
   demo_tonal_sl=['Temperatur','Sättigung','Kontrast'], demo_tonal_lbl=['Vektorskop','RGB-Parade'],
-  demo_kfit_title='Session-Modus: Puls, Zonen, Kalorien', demo_kfit_hint='Start drücken, Intensität regeln',
-  demo_kfit_lbl=['Arbeit','Erholung','Serie','Puls','Zone','kcal','Intensität','Start','Pause','Fertig','Zeit in Zonen','Nochmal'],
-  demo_kfit_prof='Demo-Profil · 30 J · 62 kg · HFmax 190 · Intervalle 30/15 × 4 · Kalorien nach Keytel et al. 2005',
+  demo_try={'iron':'Probier: Warte auf einen PENTEST-Eintrag. Er wird getrennt gezählt, nicht als Alarm.','db':'Probier: Zieh den Regler auf 15 Minuten und schau, was mit dem Anschluss in Frankfurt passiert.','relais':'Probier: Start drücken, dann Not-Aus. Die Selbsthaltung fällt, im AWL kippt das VKE.','tonal':'Probier: Sättigung auf 0 und beobachte, wie das Vektorskop in die Mitte kollabiert.','kfit':'Probier: Intensität auf RPE 10. Die Kurve springt in Z5 und die Kalorien folgen mit Verzögerung.'},
+  demo_kfit_title='Session-Rechner: Puls, Zonen, Kalorien', demo_kfit_hint='Regler bewegen, die Kurve rechnet sofort',
+  demo_kfit_lbl=['Alter','Gewicht','Geschlecht','Dauer','Intensität','Start','Pause','Nochmal','Kalorien','Ø Puls','Max. Puls','Zeit in Z4–Z5','Arbeit','Erholung','Aufwärmen','weiblich','männlich','Rekord','Fertig','Ausklang','Puls','kcal kumuliert'],
+  demo_kfit_prof='Simulation: der Puls folgt der Belastung mit Verzögerung (Aufwärmen, Intervalle 3/1,5 min, Ausklang). HFmax nach Tanaka (208 − 0,7 × Alter), Zielpuls nach Karvonen, Kalorien nach Keytel et al. 2005.',
  ),
  'en': dict(
   lang='en', other='de', other_label='DE', other_href='/',
@@ -103,9 +104,10 @@ UI = {
   demo_relais_btn=['Start I0.0','Stop I0.1','E-Stop I0.2'], demo_relais_out='Motor Q4.0', demo_relais_awl='STL · network 1', demo_relais_scope='Oscilloscope · Q4.0',
   demo_tonal_title='Scopes from real pixels', demo_tonal_hint='move the sliders, vectorscope and parade compute live',
   demo_tonal_sl=['Temperature','Saturation','Contrast'], demo_tonal_lbl=['Vectorscope','RGB parade'],
-  demo_kfit_title='Session mode: heart rate, zones, calories', demo_kfit_hint='press start, adjust intensity',
-  demo_kfit_lbl=['Work','Rest','Set','Heart rate','Zone','kcal','Intensity','Start','Pause','Done','Time in zones','Again'],
-  demo_kfit_prof='Demo profile · 30 y · 62 kg · HRmax 190 · intervals 30/15 × 4 · calories after Keytel et al. 2005',
+  demo_try={'iron':'Try: wait for a PENTEST entry. It is counted separately, not raised as an alarm.','db':'Try: drag the slider to 15 minutes and watch what happens to the Frankfurt connection.','relais':'Try: press Start, then E-Stop. The latch drops and the RLO flips in the STL view.','tonal':'Try: saturation to 0 and watch the vectorscope collapse to the centre.','kfit':'Try: intensity to RPE 10. The curve jumps into Z5 and the calories follow with a lag.'},
+  demo_kfit_title='Session calculator: heart rate, zones, calories', demo_kfit_hint='move the sliders, the curve recomputes instantly',
+  demo_kfit_lbl=['Age','Weight','Sex','Duration','Intensity','Start','Pause','Again','Calories','Avg HR','Max HR','Time in Z4–Z5','Work','Rest','Warm-up','female','male','Record','Done','Cool-down','Heart rate','kcal cumulative'],
+  demo_kfit_prof='Simulation: heart rate follows the load with a lag (warm-up, 3/1.5 min intervals, cool-down). HRmax after Tanaka (208 − 0.7 × age), target HR after Karvonen, calories after Keytel et al. 2005.',
  )
 }
 

@@ -311,73 +311,134 @@
     }
   })();
 
-  /* ---------- live demo: KFIT session mode (heart rate, zones, calories) ---------- */
+  /* ---------- live demo: KFIT session calculator (heart rate, zones, calories) ---------- */
   (function () {
     var root = $('#kf'); if (!root) return;
-    var cv = $('#kfc'), ctx = cv.getContext('2d'), go = $('#kfgo'), rng = $('#kfrange');
-    var hrEl = $('#kfhr'), zEl = $('#kfz'), znEl = $('#kfzn'), kEl = $('#kfkcal'), tEl = $('#kftime'), phEl = $('#kfph'), setEl = $('#kfset'), rpeEl = $('#kfrpe');
-    var bars = $$('#kfbars i'), phase = $('#kfphase');
-    var T = { work: root.dataset.work, rest: root.dataset.rest, start: root.dataset.start, pause: root.dataset.pause, done: root.dataset.done, again: root.dataset.again };
-    // demo persona: 30 y, 62 kg, female -> HRmax 190. Keytel et al. 2005 (kJ/min) -> kcal
-    var AGE = 30, KG = 62, HRMAX = 190, WORK = 30, REST = 15, SETS = 4;
-    var ZC = ['#7d8590', '#38bdf8', '#35d07f', '#f4b740', '#ff5470'], PINK = '#ff2fa6', PURP = '#8b5cf6';
-    var hr = 72, kcal = 0, tz = [0, 0, 0, 0, 0], hist = [], running = false, done = false, t = 0, last = 0, raf = 0;
-    function zone(h) { var p = h / HRMAX; return p < .6 ? 0 : p < .7 ? 1 : p < .8 ? 2 : p < .9 ? 3 : 4; }
-    function kcalPerMin(h) { var kj = -20.4022 + 0.4472 * h - 0.1263 * KG + 0.074 * AGE; return Math.max(0, kj / 4.184); }
-    function target() { if (done) return 72; var rpe = +rng.value; return inWork() ? 108 + (rpe - 5) * 13.4 : 104; }
-    function cyc() { return WORK + REST; }
-    function setIdx() { return Math.min(SETS - 1, Math.floor(t / cyc())); }
-    function inWork() { return (t % cyc()) < WORK; }
-    function fmt(s) { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+    var L = []; for (var li = 0; li < 22; li++) L.push(root.getAttribute('data-l' + li) || '');
+    var cv = $('#kfc'), ctx = cv.getContext('2d');
+    var inAge = $('#kf-age'), inKg = $('#kf-kg'), inDur = $('#kf-dur'), inRpe = $('#kf-rpe'), segs = $$('.seg button', root);
+    var oAge = $('#kfo-age'), oKg = $('#kfo-kg'), oDur = $('#kfo-dur'), oRpe = $('#kfo-rpe');
+    var sKcal = $('#kf-kcal'), sAvg = $('#kf-avg'), sMax = $('#kf-max'), sHi = $('#kf-hi');
+    var go = $('#kfgo'), clock = $('#kfclock'), phEl = $('#kfph'), live = $('#kflive');
+    var PINK = '#ff2fa6', PURP = '#a78bfa', YEL = '#f4e04d', ZC = ['#6b7480', '#38bdf8', '#35d07f', '#f4b740', '#ff5470'];
+    var sex = 'f', S = null, playing = false, cursor = 0, raf = 0, lastT = 0;
+    // ---- model ----
+    function plan(dur) { // seconds -> phase: 0 warm,1 work,2 rest,3 cool
+      var warm = Math.min(240, Math.round(dur * 0.12)), cool = 120, W = dur <= 1200 ? 120 : 180, R = dur <= 1200 ? 60 : 90, ph = [];
+      for (var t = 0; t < dur; t++) {
+        if (t < warm) ph.push(0); else if (t >= dur - cool) ph.push(3);
+        else { var k = (t - warm) % (W + R); ph.push(k < W ? 1 : 2); }
+      }
+      return ph;
+    }
+    function simulate() {
+      var age = +inAge.value, kg = +inKg.value, dur = +inDur.value * 60, rpe = +inRpe.value;
+      var hrmax = Math.round(208 - 0.7 * age), rest = 65, res = hrmax - rest;
+      var tgt = [rest + 0.50 * res, rest + (0.55 + 0.08 * (rpe - 5)) * res, rest + 0.45 * res, rest + 0.40 * res];
+      var ph = plan(dur), hr = [], kc = [], h = 72, kcal = 0, sum = 0, mx = 0, hi = 0, mxI = 0;
+      for (var t = 0; t < dur; t++) {
+        var tg = tgt[ph[t]], tau = tg > h ? 25 : 40;
+        h += (tg - h) * (1 - Math.exp(-1 / tau));
+        var kj = sex === 'f' ? (-20.4022 + 0.4472 * h - 0.1263 * kg + 0.074 * age) : (-55.0969 + 0.6309 * h + 0.1988 * kg + 0.2017 * age);
+        kcal += Math.max(0, kj / 4.184) / 60;
+        hr.push(h); kc.push(kcal); sum += h; if (h > mx) { mx = h; mxI = t; } if (h / hrmax >= 0.8) hi++;
+      }
+      return { dur: dur, hrmax: hrmax, ph: ph, hr: hr, kc: kc, kcal: kcal, avg: sum / dur, max: mx, maxI: mxI, hi: hi / 60 };
+    }
+    // ---- chart ----
+    function size() { var dpr = Math.min(2, devicePixelRatio || 1), w = cv.clientWidth || 600, h = w < 480 ? 190 : 230; cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return { w: w, h: h }; }
     function draw() {
-      var W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+      var d = size(), W = d.w, H = d.h, pl = 34, pr = 58, pt = 12, pb = 22, cw = W - pl - pr, ch = H - pt - pb;
+      ctx.clearRect(0, 0, W, H);
+      var lo = 50, hiY = S.hrmax + 5, ys = function (v) { return pt + ch - (v - lo) / (hiY - lo) * ch; }, xs = function (t) { return pl + t / (S.dur - 1) * cw; };
       // zone bands
-      for (var z = 0; z < 5; z++) { var lo = [0, .6, .7, .8, .9][z], hi = [.6, .7, .8, .9, 1.02][z]; ctx.fillStyle = ZC[z]; ctx.globalAlpha = .07; ctx.fillRect(0, H - hi * H, W, (hi - lo) * H); }
-      ctx.globalAlpha = 1;
-      // work/rest shading in the past 90 s
-      var N = 360, dt = .25; // 90 s at 4 Hz
-      for (var i = 0; i < hist.length; i++) { var x = W - (hist.length - i) * (W / N); if (hist[i][1]) { ctx.fillStyle = 'rgba(255,47,166,.06)'; ctx.fillRect(x, 0, W / N + 1, H); } }
-      // trace
-      ctx.beginPath(); ctx.lineWidth = 2; ctx.strokeStyle = PINK; ctx.lineJoin = 'round';
-      for (var j = 0; j < hist.length; j++) { var xx = W - (hist.length - j) * (W / N), yy = H - (hist[j][0] / HRMAX) * H; j ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy); }
+      var zb = [0.5, 0.6, 0.7, 0.8, 0.9, 1.03];
+      for (var z = 0; z < 5; z++) { var y1 = ys(Math.min(hiY, zb[z + 1] * S.hrmax)), y0 = ys(Math.max(lo, zb[z] * S.hrmax)); ctx.fillStyle = ZC[z]; ctx.globalAlpha = 0.06; ctx.fillRect(pl, y1, cw, y0 - y1); ctx.globalAlpha = 1; ctx.fillStyle = ZC[z]; ctx.globalAlpha = .7; ctx.font = '9px IBM Plex Mono, monospace'; ctx.textAlign = 'right'; ctx.fillText('Z' + (z + 1), pl - 6, (y0 + y1) / 2 + 3); ctx.globalAlpha = 1; }
+      // work phases shading
+      ctx.fillStyle = 'rgba(255,47,166,.07)';
+      for (var t = 0; t < S.dur; t++) if (S.ph[t] === 1) ctx.fillRect(xs(t), pt, cw / S.dur + 0.5, ch);
+      // x axis minute ticks
+      ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.font = '9.5px IBM Plex Mono, monospace'; ctx.textAlign = 'center';
+      var step = S.dur > 2400 ? 600 : 300;
+      for (var m = 0; m <= S.dur; m += step) { ctx.fillText((m / 60) + "'", xs(Math.min(m, S.dur - 1)), H - 6); }
+      // kcal cumulative (right axis)
+      var kmax = S.kcal || 1, yk = function (v) { return pt + ch - v / kmax * ch; };
+      ctx.beginPath(); ctx.strokeStyle = PURP; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+      for (var i = 0; i < S.dur; i++) { i ? ctx.lineTo(xs(i), yk(S.kc[i])) : ctx.moveTo(xs(i), yk(S.kc[i])); }
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = PURP; ctx.textAlign = 'left'; ctx.fillText(Math.round(kmax) + ' kcal', W - pr + 6, yk(kmax) + 4); ctx.fillText('0', W - pr + 6, yk(0) + 3);
+      // HR line with gradient fill
+      var end = playing ? Math.max(1, Math.floor(cursor)) : S.dur;
+      var g = ctx.createLinearGradient(0, pt, 0, pt + ch); g.addColorStop(0, 'rgba(255,47,166,.28)'); g.addColorStop(1, 'rgba(255,47,166,0)');
+      ctx.beginPath(); ctx.moveTo(xs(0), ys(S.hr[0]));
+      for (var j = 1; j < end; j++) ctx.lineTo(xs(j), ys(S.hr[j]));
+      ctx.lineTo(xs(end - 1), pt + ch); ctx.lineTo(xs(0), pt + ch); ctx.closePath(); ctx.fillStyle = g; ctx.fill();
+      ctx.beginPath(); ctx.strokeStyle = PINK; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+      for (var k = 0; k < end; k++) { k ? ctx.lineTo(xs(k), ys(S.hr[k])) : ctx.moveTo(xs(k), ys(S.hr[k])); }
       ctx.stroke();
-      if (hist.length) { var lp = hist[hist.length - 1]; ctx.fillStyle = PINK; ctx.beginPath(); ctx.arc(W - (W / N), H - (lp[0] / HRMAX) * H, 3.5, 0, 6.283); ctx.fill(); }
+      if (playing) { // ghost of the remaining projection
+        ctx.beginPath(); ctx.strokeStyle = 'rgba(255,47,166,.25)'; ctx.lineWidth = 1;
+        for (var q = Math.max(0, end - 1); q < S.dur; q++) { q === end - 1 ? ctx.moveTo(xs(q), ys(S.hr[q])) : ctx.lineTo(xs(q), ys(S.hr[q])); }
+        ctx.stroke();
+        ctx.fillStyle = PINK; ctx.beginPath(); ctx.arc(xs(end - 1), ys(S.hr[end - 1]), 4, 0, 6.283); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.moveTo(xs(end - 1), pt); ctx.lineTo(xs(end - 1), pt + ch); ctx.stroke();
+      }
+      // record marker (max HR) in yellow, as in the app
+      if (!playing || cursor >= S.maxI) { ctx.fillStyle = YEL; ctx.beginPath(); ctx.arc(xs(S.maxI), ys(S.max), 4.5, 0, 6.283); ctx.fill(); ctx.font = '10px IBM Plex Mono, monospace'; ctx.textAlign = S.maxI > S.dur * 0.7 ? 'right' : 'left'; ctx.fillText(Math.round(S.max) + ' bpm', xs(S.maxI) + (S.maxI > S.dur * 0.7 ? -8 : 8), ys(S.max) - 8); }
     }
-    function paint() {
-      var z = zone(hr), w = inWork() && !done;
-      hrEl.textContent = Math.round(hr); zEl.textContent = 'Z' + (z + 1); zEl.style.color = ZC[z];
-      znEl.textContent = Math.round(hr / HRMAX * 100) + '% max'; kEl.textContent = kcal < 10 ? kcal.toFixed(1) : Math.round(kcal);
-      var tot = tz.reduce(function (a, b) { return a + b; }, 0) || 1;
-      bars.forEach(function (b, i) { b.style.width = (tz[i] / tot * 100) + '%'; b.style.background = ZC[i]; });
-      if (done) { phEl.textContent = T.done; tEl.textContent = fmt(0); phase.className = 'kft done'; go.textContent = T.again; go.setAttribute('aria-pressed', 'false'); }
-      else { phEl.textContent = w ? T.work : T.rest; tEl.textContent = fmt(w ? WORK - (t % cyc()) : cyc() - (t % cyc())); setEl.textContent = setIdx() + 1; phase.className = 'kft ' + (w ? 'work' : 'rest'); go.textContent = running ? T.pause : T.start; go.setAttribute('aria-pressed', running ? 'true' : 'false'); }
-      rpeEl.textContent = 'RPE ' + rng.value;
-      draw();
+    function fmt(sec) { sec = Math.max(0, Math.round(sec)); return Math.floor(sec / 60) + ':' + ('0' + (sec % 60)).slice(-2); }
+    function paintStats() {
+      oAge.textContent = inAge.value; oKg.textContent = inKg.value + ' kg'; oDur.textContent = inDur.value + ' min'; oRpe.textContent = 'RPE ' + inRpe.value;
+      sKcal.textContent = Math.round(S.kcal); sAvg.textContent = Math.round(S.avg); sMax.textContent = Math.round(S.max); sHi.textContent = Math.round(S.hi);
     }
+    function recompute() { S = simulate(); paintStats(); if (!playing) { cursor = 0; clock.textContent = fmt(0); phEl.textContent = ''; live.textContent = ''; } draw(); }
+    // ---- playback: 1 real second = 20 session seconds ----
     function tick(now) {
-      if (!running) return;
-      var dt = Math.min(.5, (now - last) / 1000) || 0; last = now;
-      // heart rate follows the target with inertia: rises faster than it recovers
-      var tg = target(), tau = tg > hr ? 18 : 32;
-      hr += (tg - hr) * (1 - Math.exp(-dt / tau)) + (Math.random() - .5) * 1.2;
-      hr = Math.max(60, Math.min(HRMAX, hr));
-      kcal += kcalPerMin(hr) * dt / 60; tz[zone(hr)] += dt;
-      t += dt;
-      hist.push([hr, inWork() ? 1 : 0]); if (hist.length > 360) hist.shift();
-      if (t >= cyc() * SETS) { done = true; running = false; }
-      paint(); if (running) raf = requestAnimationFrame(tick);
+      if (!playing) return;
+      var dt = Math.min(0.1, (now - lastT) / 1000) || 0; lastT = now; cursor += dt * 20;
+      if (cursor >= S.dur) { cursor = S.dur; playing = false; go.textContent = L[7]; go.setAttribute('aria-pressed', 'false'); phEl.textContent = L[18]; }
+      var i = Math.min(S.dur - 1, Math.floor(cursor));
+      clock.textContent = fmt(cursor); if (playing) phEl.textContent = [L[14], L[12], L[13], L[19]][S.ph[i]];
+      live.textContent = Math.round(S.hr[i]) + ' bpm · ' + Math.round(S.kc[i]) + ' kcal';
+      draw(); if (playing) raf = requestAnimationFrame(tick);
     }
-    function start() { running = true; last = performance.now(); raf = requestAnimationFrame(tick); paint(); }
-    function stop() { running = false; cancelAnimationFrame(raf); paint(); }
     go.addEventListener('click', function () {
-      if (done) { done = false; t = 0; kcal = 0; hr = 72; tz = [0, 0, 0, 0, 0]; hist = []; start(); return; }
-      running ? stop() : start();
+      if (playing) { playing = false; cancelAnimationFrame(raf); go.textContent = L[5]; go.setAttribute('aria-pressed', 'false'); draw(); return; }
+      if (cursor >= S.dur) cursor = 0;
+      playing = true; lastT = performance.now(); go.textContent = L[6]; go.setAttribute('aria-pressed', 'true'); raf = requestAnimationFrame(tick);
     });
-    rng.addEventListener('input', paint);
-    document.addEventListener('visibilitychange', function () { if (document.hidden && running) stop(); });
-    // seed the trace with a flat resting line so the canvas is not empty before start
-    for (var s = 0; s < 120; s++) hist.push([72 + (Math.random() - .5), 0]);
-    paint();
+    [inAge, inKg, inDur, inRpe].forEach(function (r) { r.addEventListener('input', recompute); });
+    segs.forEach(function (b) { b.addEventListener('click', function () { sex = b.getAttribute('data-sex'); segs.forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); }); recompute(); }); });
+    addEventListener('resize', function () { if (S) draw(); });
+    document.addEventListener('visibilitychange', function () { if (document.hidden && playing) { playing = false; go.textContent = L[5]; go.setAttribute('aria-pressed', 'false'); } });
+    // redraw when the collapsed mobile demo is opened (canvas had no width while hidden)
+    var tg = root.parentElement && root.parentElement.querySelector ? document.querySelector('#kfit .dtoggle') : null;
+    if (tg) tg.addEventListener('click', function () { setTimeout(function () { if (S) draw(); }, 60); });
+    recompute();
+  })();
+
+  /* ---------- demo affordance: one-time nudge when a demo scrolls into view ---------- */
+  (function () {
+    if (reduce || !('IntersectionObserver' in window)) return;
+    var touched = {};
+    function sweep(r, delta, ms) { // move a range input there and back, firing input events so the demo visibly reacts
+      var v0 = +r.value, t0 = performance.now();
+      function step(now) { var k = Math.min(1, (now - t0) / ms), e = Math.sin(k * Math.PI); r.value = Math.round(v0 + delta * e); r.dispatchEvent(new Event('input', { bubbles: true })); if (k < 1 && !touched[r.id]) requestAnimationFrame(step); else { r.value = v0; r.dispatchEvent(new Event('input', { bubbles: true })); } }
+      requestAnimationFrame(step);
+    }
+    var plans = { dbrange: 9, 'kf-rpe': 3, 't-sat': -60 };
+    $$('.demo').forEach(function (d) {
+      var done = false;
+      new IntersectionObserver(function (es, io) { es.forEach(function (e) {
+        if (!e.isIntersecting || done) return; done = true; io.disconnect();
+        setTimeout(function () {
+          var r = $('input[type=range]', d);
+          if (r && plans[r.id] != null && !touched[r.id]) sweep(r, plans[r.id], 1400);
+          else { var b = $('.rb, .kfbtn, .dtoggle', d); if (b) { b.classList.add('nudge'); setTimeout(function () { b.classList.remove('nudge'); }, 1800); } }
+        }, 500);
+      }); }, { threshold: .35 }).observe(d);
+      $$('input[type=range]', d).forEach(function (r) { r.addEventListener('pointerdown', function () { touched[r.id] = true; }); });
+    });
   })();
 
   /* ---------- mobile: demo toggles + dots nav ---------- */

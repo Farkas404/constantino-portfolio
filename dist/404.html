@@ -178,34 +178,35 @@ main,header,footer{position:relative;z-index:2}
 .dbd td{padding:7px 0;border-top:1px solid var(--line);vertical-align:top}
 .dbd td:first-child{color:var(--mute);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;width:40%}
 .dbd td:last-child{color:var(--ink);transition:color .3s}
-/* KFIT session demo */
-.kf .kfg{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:stretch}
-.kf .kft{border-radius:14px;padding:16px 14px;display:flex;flex-direction:column;gap:6px;align-items:flex-start;border:1px solid var(--line);background:rgba(139,92,246,.10);transition:background .4s,border-color .4s}
-.kf .kft.work{background:rgba(255,47,166,.12);border-color:rgba(255,47,166,.45)}
-.kf .kft.rest{background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.45)}
-.kf .kft.done{background:rgba(53,208,127,.10);border-color:rgba(53,208,127,.45)}
-.kf .kft .ph{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
-.kf .kft.work .ph{color:#ff2fa6}.kf .kft.rest .ph{color:#a78bfa}.kf .kft.done .ph{color:#35d07f}
-.kf .kft b{font-family:var(--mono);font-size:44px;line-height:1;font-weight:500;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
-.kf .kft .set{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em}
-.kf .kft .set i{font-style:normal;color:var(--ink)}
-.kf .kfbtn{margin-top:auto;align-self:stretch;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:10px 12px;border-radius:10px;border:1px solid var(--pc);background:transparent;color:var(--pc);cursor:pointer;transition:.2s}
-.kf .kfbtn:hover,.kf .kfbtn[aria-pressed=true]{background:var(--pc);color:#0b0d0f}
-.kf .kfr{min-width:0;display:flex;flex-direction:column;gap:10px}
-.kf canvas{width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.35)}
-.kf .kfstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+/* KFIT session calculator demo */
+.kf .kfctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 16px;margin-bottom:14px}
+.kf .kfctl label,.kf .seg{display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);min-width:0}
+.kf .kfctl label>span,.kf .seg>span{display:flex;justify-content:space-between;gap:8px}
+.kf .kfctl output{color:var(--ink);text-transform:none;letter-spacing:0;font-size:12px}
+.kf .kfctl input[type=range]{width:100%;margin:0;accent-color:var(--pc);height:28px}
+.kf .seg>div{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;height:28px}
+.kf .seg button{flex:1;font-family:var(--mono);font-size:10.5px;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.04em;text-transform:none;color:var(--mute);background:transparent;border:0;cursor:pointer;transition:.2s}
+.kf .seg button+button{border-left:1px solid var(--line)}
+.kf .seg button[aria-pressed=true]{background:var(--pc);color:#0b0d0f}
+.kf .kfchart{border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.35);padding:10px 8px 6px;position:relative}
+.kf canvas{width:100%;height:auto;display:block}
+.kf .kfleg{display:flex;gap:16px;flex-wrap:wrap;padding:8px 6px 2px;font-family:var(--mono);font-size:10.5px;color:var(--mute)}
+.kf .kfleg i{display:inline-block;width:14px;height:0;border-top:2px solid #ff2fa6;vertical-align:middle;margin-right:6px}
+.kf .kfleg i.l2{border-top:2px dashed #a78bfa}
+.kf .kfleg i.l3{width:8px;height:8px;border:0;border-radius:50%;background:#f4e04d}
+.kf .kfstats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
 .kf .kfstats>div{border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
-.kf .kfstats .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
-.kf .kfstats b{font-family:var(--mono);font-size:24px;font-weight:500;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;transition:color .3s}
+.kf .kfstats .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);white-space:normal}
+.kf .kfstats b{font-family:var(--mono);font-size:24px;font-weight:500;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
 .kf .kfstats small{font-family:var(--mono);font-size:10.5px;color:var(--mute)}
-.kf .kfzones .k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);display:block;margin-bottom:6px}
-.kf .kfzones .bars{display:flex;height:8px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.05);gap:2px}
-.kf .kfzones .bars i{display:block;height:100%;width:0;transition:width .3s}
-.kf .kfsl{display:block;margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--mute)}
-.kf .kfsl span{float:right;color:var(--ink)}
-.kf .kfsl input[type=range]{width:100%;margin:8px 0 0;accent-color:var(--pc);height:28px}
-.kf .kfprof{margin:10px 0 0;font-family:var(--mono);font-size:10.5px;color:var(--dim);line-height:1.5}
-@media(max-width:640px){.kf .kfg{grid-template-columns:1fr}.kf .kft{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 14px}.kf .kft b{font-size:36px}.kf .kfbtn{margin-top:0;margin-left:auto;align-self:center}.kf .kfstats b{font-size:20px}}
+.kf .kfplay{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;font-family:var(--mono);font-size:12px;color:var(--mute)}
+.kf .kfbtn{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:9px 16px;border-radius:10px;border:1px solid var(--pc);background:transparent;color:var(--pc);cursor:pointer;transition:.2s}
+.kf .kfbtn:hover,.kf .kfbtn[aria-pressed=true]{background:var(--pc);color:#0b0d0f}
+.kf .kfclock{font-size:20px;color:var(--ink);font-variant-numeric:tabular-nums}
+.kf .kfph{color:var(--pc);letter-spacing:.14em;text-transform:uppercase;font-size:11px}
+.kf .kflive{margin-left:auto;color:var(--ink)}
+.kf .kfprof{margin:12px 0 0;font-family:var(--mono);font-size:10.5px;color:var(--dim);line-height:1.55}
+@media(max-width:640px){.kf .kfctl{grid-template-columns:1fr 1fr}.kf .kfstats{grid-template-columns:1fr 1fr}.kf .kfstats b{font-size:20px}.kf .kflive{margin-left:0;width:100%}}
 
 /* reveal */
 .rv{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)}
@@ -392,7 +393,7 @@ footer{padding:30px 0 calc(30px + env(safe-area-inset-bottom,0px));font-family:v
 .cvcard{padding:22px 22px 20px;display:flex;flex-direction:column;gap:14px}
 .cvcard .tline li{grid-template-columns:86px 1fr;padding:9px 0}
 .cvcard .tline li:last-child{border-bottom:0}
-.cvcard .btn{align-self:flex-start;margin-top:4px}
+.cvcard .btn{align-self:stretch;justify-content:center;margin-top:6px}
 .cv .top{margin-bottom:14px}
 .cv .ds{font-family:var(--mono);font-size:13px;letter-spacing:.02em;color:var(--acc)}
 .cvmeta{display:flex;flex-wrap:wrap;gap:8px 18px;padding:14px 0 18px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12.5px;color:var(--ink)}
@@ -416,4 +417,10 @@ footer{padding:30px 0 calc(30px + env(safe-area-inset-bottom,0px));font-family:v
 .cvl ul li{display:list-item;grid-template-columns:none;padding:2px 0;border:0}
 @media(max-width:760px){.cvsk{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.cvsk{grid-template-columns:1fr}.cvl li{grid-template-columns:1fr;gap:4px}.cvl .d{padding-top:0}.cvmeta{gap:8px 14px}.cvcard{padding:18px 16px}}
+
+/* demo affordance */
+.dtry{margin:-2px 0 12px;font-size:13px;color:var(--mute);line-height:1.5;padding-left:14px;border-left:2px solid var(--pc)}
+.nudge{animation:nudge 1.8s ease-in-out}
+@keyframes nudge{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}30%{box-shadow:0 0 0 6px color-mix(in srgb,var(--pc) 35%,transparent)}60%{box-shadow:0 0 0 0 color-mix(in srgb,var(--pc) 0%,transparent)}90%{box-shadow:0 0 0 6px color-mix(in srgb,var(--pc) 30%,transparent)}}
+@media(prefers-reduced-motion:reduce){.nudge{animation:none}}
 </style></head><body><div class="grid"></div><main style="min-height:100svh;display:grid;place-items:center;padding:24px"><div class="term glass" style="width:min(100%,560px)"><div class="term-bar"><i></i><i></i><i></i><span>zsh — farkas-garage</span></div><div class="term-body"><span class="p">constantino@farkas</span> <span class="c">~ %</span> <span class="c">cat {path}</span><span class="o">cat: no such file or directory (404)</span><span class="p">constantino@farkas</span> <span class="c">~ %</span> <a class="c" href="/">cd ~</a><span class="cur"></span></div></div></main></body></html>
