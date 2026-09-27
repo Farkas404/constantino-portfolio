@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """All page copy in DE and EN. build.py renders both languages from this."""
 
-COLORS = {'irongrid': '#3fbfa6', 'relais': '#e0a23e', 'tonal': '#4cb5f0', 'securitymonitor': '#6f84ff', 'dbnavigator': '#ec0016'}
+COLORS = {'irongrid': '#3fbfa6', 'relais': '#e0a23e', 'tonal': '#4cb5f0', 'securitymonitor': '#6f84ff', 'dbnavigator': '#ec0016', 'kfit': '#ff2fa6'}
 
 UI = {
  'de': dict(
@@ -21,7 +21,7 @@ UI = {
   facts=[('⅓','der Widgets der Website 4.0 (TA Bildungszentrum)'),('19','Hosts im eigenen Security-Lab'),('6 Wo.','Kundenprojekt Angular + Symfony')],
   cta1='Projekte ansehen', cta2='Über mich', scroll='scroll to run',
   avail='verfügbar', loc='Regensburg · Remote',
-  work_k='Projekte · 05', work_h='Vier Werkzeuge für den Desktop, ein Konzept fürs Telefon.', work_s='entworfen &amp; in Code gebaut',
+  work_k='Projekte · 06', work_h='Vier Werkzeuge für den Desktop, zwei Apps fürs Telefon.', work_s='entworfen &amp; in Code gebaut',
   open_case='Case Study öffnen', demo_k='Live-Demo',
   method_k='So arbeite ich', method_h='Verstehen. In Code prototypen. Prüfen.',
   quote='„Ein klickbarer Entwurf ist <em>ehrlicher als ein Bild</em>: Er zeigt, was das System kann und wo es scheitert.“',
@@ -71,7 +71,7 @@ UI = {
   facts=[('⅓','of the widgets on Website 4.0 (TA Bildungszentrum)'),('19','hosts in my own security lab'),('6 wks','client project, Angular + Symfony')],
   cta1='View projects', cta2='About me', scroll='scroll to run',
   avail='available', loc='Regensburg · Remote',
-  work_k='Projects · 05', work_h='Four desktop tools, one concept for the phone.', work_s='designed &amp; built in code',
+  work_k='Projects · 06', work_h='Four desktop tools, two apps for the phone.', work_s='designed &amp; built in code',
   open_case='Open case study', demo_k='Live demo',
   method_k='How I work', method_h='Understand. Prototype in code. Verify.',
   quote='“A clickable prototype is <em>more honest than a picture</em>: it shows what the system can do and where it fails.”',
@@ -153,6 +153,15 @@ PROJECTS = {
    gallery=[('db-2.jpg','Zustand 1: ein Blick, ein Satz, ein Rot. Die App verspricht, sich nur zu melden, wenn sich etwas ändert.'),('db-3.jpg','Gefährdet: 72 % Risiko, 3 Minuten Umstieg. „Wir berechnen Alternativen“, Klartext statt Prozentzahl.'),('db-4.jpg','Rescue: ICE 72 ausgefallen, drei Alternativen berechnet, Fahrgastrechte werden im Hintergrund vorbereitet.'),('db-5.jpg','Was-wäre-wenn-Regler: ein Regler, fünf Konsequenzen: Anschluss, Ankunft, Zug, Rechte, Modus.'),('db-6.jpg','Wagenreihung und Sitzplan: eigener Wagen rot, Sitz 42 markiert.'),('db-7.jpg','Live-Karte: echter Zug groß und rot, Richtung und Gleis im Chip.')],
    stats=[('21','Screens'),('5','Reisezustände'),('1','roter Button'),('0','juristische Sätze')],
    dec=[('Kognitive Last ist das Problem','Nicht fehlende Daten. Die App interpretiert die Folgen, warnt früh, findet Alternativen.'),('Rot ist DB und trotzdem sparsam','Einmal pro Screen, für die eine Aktion, die zählt.'),('Nie ein falsches Versprechen','„wahrscheinlich“ statt „garantiert“, ein Foto statt eines Formulars.'),('Der einzige dunkle Moment','Fällt der Zug aus, kippt der Screen ins Grafit: etwas Ernstes ist passiert, und die App übernimmt.')]),
+  dict(id='kfit', k='Projekt 06 · Produktkonzept & App-Design', t='KF<em>IT</em>', tt='KFIT',
+   tl='Vom Instagram-Video zur Routine, die man verfolgen, protokollieren und verbessern kann.',
+   ds='Trainings-App für die Schützlinge einer HYROX-Trainerin: Übungsbibliothek, Session-Modus, Fortschritt und eine Coach-Ansicht zum Planen per Drag-and-drop. Installierbare Web-App für eine Person ohne Budget. Konzeptstudie, kein bezahlter Auftrag.',
+   facts=[('Rolle','UX/UI · Produktkonzept'),('Plattform','PWA · iOS & Android'),('Umfang','13 Screens · 2 Rollen'),('Status','Konzeptstudie 2026')],
+   stack=['Figma','PWA','YouTube','PostgreSQL'], sys='HYROX · WOCHE 3 VON 8', img='kfit-1.jpg', alt='KFIT Übungsbibliothek und Session-Modus', demo=None,
+   ovd='Eine HYROX-Trainerin bringt ihre Routinen sonst über Instagram-Storys und WhatsApp unter die Leute — die Schützlinge folgen halb, protokollieren nichts, und sie sieht nicht, wer trainiert hat. KFIT macht daraus eine App: Video hochladen, Routine per Drag-and-drop bauen, sehen, wer zurückfällt. Mehr nicht.',
+   gallery=[('kfit-1.jpg','Alumno-Flow: von der Bibliothek in die Session, ohne den Daumen zu bewegen. Videos nach Station gefiltert, jedes unter einer Minute.'),('kfit-2.jpg','Fortschritt: acht Wochen als Kurve, der Rekord in Gelb, der Puls aus Strava, das Gewicht. Gespeichert wird nur, was zählt.'),('kfit-3.jpg','Coach-Ansicht: drei Zahlen sagen der Trainerin, wer diese Woche einen Anstoß braucht. Neue Übung per Video, Routine per Drag-and-drop.'),('kfit-4.jpg','Startscreen, Premium und Buchung: ihre Stimme statt WhatsApp, ein Schloss statt einer Mauer.'),('kfit-5.jpg','Drei kleine Entscheidungen, die man im Gym merkt: der Timer aus zwei Metern lesbar, das Panel mit einem einzigen gelben Wert, das Ablegen mit sprechenden Lücken.')],
+   stats=[('13','Screens'),('2','Rollen'),('8','Wochen-Plan'),('0 €','Budget')],
+   dec=[('Web-App, kein Store','Installierbare PWA für iOS und Android, keine Store-Provision, Update direkt aus dem Browser.'),('Nur Dark Mode','Die Palette stammt aus ihrem Instagram: dunkle Gyms, Neon, pinke Schuhe. Gelb erscheint nur bei einem Rekord oder einer Warnung.'),('Gesundheitsdaten getrennt','Puls, Gewicht und Schlaf sind sensibel: eigene Einwilligung, eigene Tabelle, ein Knopf, der alles löscht.'),('Vor einem Launch noch','Mit fünf echten Schützlingen testen, Strava anbinden, die Bezahlung für Mexiko einrichten.')]),
  ],
  'en': [
   dict(id='irongrid', k='Project 01 · OT/IT security monitoring', t='Iron<em>Grid</em> 2.0', tt='IronGrid 2.0',
@@ -200,6 +209,15 @@ PROJECTS = {
    gallery=[('db-2.jpg','State 1: one glance, one sentence, one red. The app promises to speak up only when something changes.'),('db-3.jpg','At risk: 72 % risk, 3-minute transfer. “We are computing alternatives”, plain language instead of a percentage.'),('db-4.jpg','Rescue: ICE 72 cancelled, three alternatives computed, passenger rights prepared in the background.'),('db-5.jpg','What-if slider: one slider, five consequences: connection, arrival, train, rights, mode.'),('db-6.jpg','Coach sequence and seat map: own coach in red, seat 42 marked.'),('db-7.jpg','Live map: own train large and red, direction and platform in the chip.')],
    stats=[('21','screens'),('5','journey states'),('1','red button'),('0','legal sentences')],
    dec=[('Cognitive load is the problem','Not missing data. The app interprets consequences, warns early, finds alternatives.'),('Red is DB and still sparse','Once per screen, for the one action that counts.'),('Never a false promise','“likely” instead of “guaranteed”, a photo instead of a form.'),('The only dark moment','If the train is cancelled the screen turns graphite: something serious happened, and the app takes over.')]),
+  dict(id='kfit', k='Project 06 · Product concept & app design', t='KF<em>IT</em>', tt='KFIT',
+   tl='From an Instagram video to a routine you can follow, log and improve.',
+   ds='A training app for the students of a HYROX coach: an exercise library, a session mode, progress, and a coach view for planning by drag-and-drop. An installable web app for one person with no budget. Concept study, not a paid commission.',
+   facts=[('Role','UX/UI · Product concept'),('Platform','PWA · iOS & Android'),('Scope','13 screens · 2 roles'),('Status','Concept study 2026')],
+   stack=['Figma','PWA','YouTube','PostgreSQL'], sys='HYROX · WEEK 3 OF 8', img='kfit-1.jpg', alt='KFIT exercise library and session mode', demo=None,
+   ovd='A HYROX coach normally shares her routines through Instagram stories and WhatsApp — students follow along half-heartedly, log nothing, and she cannot see who trained. KFIT turns that into an app: upload a video, build a routine by drag-and-drop, see who is falling behind. Nothing more.',
+   gallery=[('kfit-1.jpg','Student flow: from the library into the session without moving your thumb. Videos filtered by station, each under a minute.'),('kfit-2.jpg','Progress: eight weeks as a curve, the record in yellow, heart rate from Strava, weight. Only what matters is stored.'),('kfit-3.jpg','Coach view: three numbers tell the coach who needs a nudge this week. New exercise by video, routine by drag-and-drop.'),('kfit-4.jpg','Home screen, Premium and booking: her voice instead of WhatsApp, a lock rather than a wall.'),('kfit-5.jpg','Three small decisions you feel in the gym: a timer readable from two metres, a panel with a single yellow value, drag-and-drop with slots that speak.')],
+   stats=[('13','Screens'),('2','Roles'),('8','Week plan'),('0 €','Budget')],
+   dec=[('Web app, no store','Installable PWA for iOS and Android, no store commission, updates straight from the browser.'),('Dark mode only','The palette comes from her Instagram: dark gyms, neon, pink shoes. Yellow appears only for a record or a warning.'),('Health data kept apart','Heart rate, weight and sleep are sensitive: separate consent, a separate table, one button that deletes it all.'),('Before any launch','Test with five real students, connect Strava, set up payment for Mexico.')]),
  ]
 }
 

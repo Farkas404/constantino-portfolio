@@ -69,7 +69,7 @@ def project_html(p, u, lang, i):
   </div>
 </section>'''
 
-IMGH = {'iron-1.jpg': 708, 'relais-1.jpg': 750, 'tonal-1.jpg': 883, 'sm-1.jpg': 859}
+IMGH = {'iron-1.jpg': 708, 'relais-1.jpg': 750, 'tonal-1.jpg': 883, 'sm-1.jpg': 859, 'kfit-1.jpg': 829, 'kfit-2.jpg': 784, 'kfit-3.jpg': 829, 'kfit-4.jpg': 814, 'kfit-5.jpg': 747}
 
 def page(lang, inline=False, artifact=False):
     u = UI[lang]; projects = PROJECTS[lang]
@@ -163,7 +163,7 @@ def page(lang, inline=False, artifact=False):
 </div>
 <div class="pal" id="pal"><div class="box glass"><input id="palq" type="text" placeholder="{esc(u['pal_ph'])}" autocomplete="off" aria-label="{esc(u['jump'])}"><ul id="pall"></ul></div></div>
 <div class="toast glass" id="toast">{esc(u['copied'])}</div>
-<nav class="dots" aria-label="Projekte"><a href="#irongrid" data-d="irongrid"><span class="sr">IronGrid</span></a><a href="#relais" data-d="relais"><span class="sr">RELAIS</span></a><a href="#tonal" data-d="tonal"><span class="sr">TONAL</span></a><a href="#securitymonitor" data-d="securitymonitor"><span class="sr">Security Monitor</span></a><a href="#dbnavigator" data-d="dbnavigator"><span class="sr">DB Navigator</span></a></nav>
+<nav class="dots" aria-label="Projekte"><a href="#irongrid" data-d="irongrid"><span class="sr">IronGrid</span></a><a href="#relais" data-d="relais"><span class="sr">RELAIS</span></a><a href="#tonal" data-d="tonal"><span class="sr">TONAL</span></a><a href="#securitymonitor" data-d="securitymonitor"><span class="sr">Security Monitor</span></a><a href="#dbnavigator" data-d="dbnavigator"><span class="sr">DB Navigator</span></a><a href="#kfit" data-d="kfit"><span class="sr">KFIT</span></a></nav>
 <div class="hud" aria-hidden="true"><span>SYS <b id="hudt">--:--:--</b></span><span>49.01°N 12.10°E</span><span>NODES <b id="hudn">0</b></span><span>LINK <b>OK</b></span></div>
 <script id="site-data" type="application/json">{data_json}</script>
 {script}'''
