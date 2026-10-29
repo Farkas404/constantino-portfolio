@@ -8,11 +8,11 @@ set -euo pipefail
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 REPO=https://github.com/Farkas404/constantino-portfolio.git
 SRC=/opt/portfolio-src
-WEB=/var/www/szilardfarkas.uk
+WEB=/var/www/constantino-carneiro.de
 KEEP=5                                        # webroot backups to keep
 STATE=/var/lib/portfolio-deploy/last-commit   # commit currently live
-NGINX_CONF=/etc/nginx/sites-available/szilardfarkas.uk
-EXTRA_DIR=/etc/nginx/szilardfarkas.uk.d       # server-local nginx extras, not in git
+NGINX_CONF=/etc/nginx/sites-available/constantino-carneiro.de
+EXTRA_DIR=/etc/nginx/constantino-carneiro.de.d       # server-local nginx extras, not in git
 STAMP=$(date +%Y%m%d-%H%M%S)
 
 # never run twice at the same time (cron every 5 min)
@@ -44,11 +44,11 @@ fi
 shopt -u nullglob
 
 # --- nginx config: only if changed, roll back if invalid
-if ! cmp -s "$SRC/deploy/nginx-szilardfarkas.uk.conf" "$NGINX_CONF"; then
-  BAK="/root/nginx-szilardfarkas.uk.$STAMP.bak"
+if ! cmp -s "$SRC/deploy/nginx-constantino-carneiro.de.conf" "$NGINX_CONF"; then
+  BAK="/root/nginx-constantino-carneiro.de.$STAMP.bak"
   cp "$NGINX_CONF" "$BAK" 2>/dev/null || true
-  cp "$SRC/deploy/nginx-szilardfarkas.uk.conf" "$NGINX_CONF"
-  ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/szilardfarkas.uk
+  cp "$SRC/deploy/nginx-constantino-carneiro.de.conf" "$NGINX_CONF"
+  ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/constantino-carneiro.de
   if nginx -t 2>/dev/null; then
     systemctl reload nginx
     echo "$STAMP nginx config updated (backup: $BAK)"

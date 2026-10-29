@@ -9,7 +9,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(ROOT, 'src'); DIST = os.path.join(ROOT, 'dist')
 CSS = open(os.path.join(SRC, 'style.css'), encoding='utf-8').read()
 JS = open(os.path.join(SRC, 'app.js'), encoding='utf-8').read()
-SITE = 'https://szilardfarkas.uk'
+SITE = 'https://constantino-carneiro.de'
 import hashlib
 VER_CSS = hashlib.md5(CSS.encode('utf-8')).hexdigest()[:8]
 VER_JS = hashlib.md5(JS.encode('utf-8')).hexdigest()[:8]
